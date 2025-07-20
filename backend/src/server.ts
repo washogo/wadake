@@ -3,6 +3,7 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import authRoutes from './routes/auth'
 import incomeRoutes from './routes/incomes'
+import expenseRoutes from './routes/expenses'
 import categoryRoutes from './routes/categories'
 import { prisma } from './lib/prisma'
 
@@ -27,6 +28,7 @@ app.use(cookieParser())
 // ルート
 app.use('/api/auth', authRoutes)
 app.use('/api/incomes', incomeRoutes)
+app.use('/api/expenses', expenseRoutes)
 app.use('/api/categories', categoryRoutes)
 
 // ヘルスチェック

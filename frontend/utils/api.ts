@@ -1,4 +1,5 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+const PROXY_BASE_URL = '/api/proxy'
+const AUTH_BASE_URL = '/api/auth'
 
 interface ApiResponse<T> {
   data?: T
@@ -6,24 +7,26 @@ interface ApiResponse<T> {
 }
 
 class ApiClient {
-  private baseUrl: string
+  private proxyBaseUrl: string
+  private authBaseUrl: string
 
-  constructor(baseUrl: string) {
-    this.baseUrl = baseUrl
+  constructor(proxyBaseUrl: string, authBaseUrl: string) {
+    this.proxyBaseUrl = proxyBaseUrl
+    this.authBaseUrl = authBaseUrl
   }
 
   private async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
+    useAuth: boolean = false
   ): Promise<ApiResponse<T>> {
-    const url = `${this.baseUrl}${endpoint}`
+    const baseUrl = useAuth ? this.authBaseUrl : this.proxyBaseUrl
+    const url = `${baseUrl}${endpoint}`
     
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
       ...options.headers,
     }
-
-
 
     const fetchOptions: RequestInit = {
       ...options,
@@ -48,19 +51,19 @@ class ApiClient {
   }
 
   // 認証トークンの取得
-  async getToken(user: any) {
+  async getToken(user: { id: string; email: string; name: string }) {
     console.log('ApiClient - Calling /api/auth/token with user:', user)
-    const result = await this.request<{ token: string; user: any }>('/api/auth/token', {
+    const result = await this.request<{ token: string; user: { id: string; email: string; name: string } }>('/token', {
       method: 'POST',
       body: JSON.stringify({ user }),
-    })
+    }, true) // useAuth = true
     console.log('ApiClient - /api/auth/token result:', result)
     return result
   }
 
   // ログアウト
   async logout() {
-    return this.request<{ message: string }>('/api/auth/logout', { method: 'POST' })
+    return this.request<{ message: string }>('/logout', { method: 'POST' }, true) // useAuth = true
   }
 
   // 収入一覧取得
@@ -77,7 +80,7 @@ class ApiClient {
       }
       createdAt: string
       updatedAt: string
-    }>>('/api/incomes')
+    }>>('/incomes')
   }
 
   // 収入登録
@@ -99,7 +102,7 @@ class ApiClient {
       }
       createdAt: string
       updatedAt: string
-    }>('/api/incomes', {
+    }>('/incomes', {
       method: 'POST',
       body: JSON.stringify(data)
     })
@@ -124,7 +127,7 @@ class ApiClient {
       }
       createdAt: string
       updatedAt: string
-    }>(`/api/incomes/${id}`, {
+    }>(`/incomes/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data)
     })
@@ -132,7 +135,7 @@ class ApiClient {
 
   // 収入削除
   async deleteIncome(id: string) {
-    return this.request<{ message: string }>(`/api/incomes/${id}`, {
+    return this.request<{ message: string }>(`/incomes/${id}`, {
       method: 'DELETE'
     })
   }
@@ -145,8 +148,93 @@ class ApiClient {
       type: string
       createdAt: string
       updatedAt: string
-    }>>('/api/categories/income')
+    }>>('/categories/income')
+  }
+
+  // 支出一覧取得
+  async getExpenses() {
+    return this.request<Array<{
+      id: string
+      amount: number
+      description: string | null
+      date: string
+      category: {
+        id: string
+        name: string
+        type: string
+      }
+      createdAt: string
+      updatedAt: string
+    }>>('/expenses')
+  }
+
+  // 支出登録
+  async createExpense(data: {
+    categoryId: string
+    amount: number
+    description?: string
+    date: string
+  }) {
+    return this.request<{
+      id: string
+      amount: number
+      description: string | null
+      date: string
+      category: {
+        id: string
+        name: string
+        type: string
+      }
+      createdAt: string
+      updatedAt: string
+    }>('/expenses', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    })
+  }
+
+  // 支出更新
+  async updateExpense(id: string, data: {
+    categoryId: string
+    amount: number
+    description?: string
+    date: string
+  }) {
+    return this.request<{
+      id: string
+      amount: number
+      description: string | null
+      date: string
+      category: {
+        id: string
+        name: string
+        type: string
+      }
+      createdAt: string
+      updatedAt: string
+    }>(`/expenses/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    })
+  }
+
+  // 支出削除
+  async deleteExpense(id: string) {
+    return this.request<{ message: string }>(`/expenses/${id}`, {
+      method: 'DELETE'
+    })
+  }
+
+  // 支出カテゴリ取得
+  async getExpenseCategories() {
+    return this.request<Array<{
+      id: string
+      name: string
+      type: string
+      createdAt: string
+      updatedAt: string
+    }>>('/categories/expense')
   }
 }
 
-export const apiClient = new ApiClient(API_BASE_URL) 
+export const apiClient = new ApiClient(PROXY_BASE_URL, AUTH_BASE_URL) 

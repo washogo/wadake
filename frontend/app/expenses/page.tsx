@@ -4,22 +4,22 @@ import { useState } from 'react'
 import { useAuth } from '../providers/AuthProvider'
 import { apiClient } from '../../utils/api'
 import { useRouter } from 'next/navigation'
-import { useIncomes, useIncomeCategories, type Income } from '../../hooks/useIncomes'
-import { type IncomeFormData } from '../../lib/validations'
-import IncomeModal from '../../components/IncomeModal'
+import { useExpenses, useExpenseCategories, type Expense } from '../../hooks/useExpenses'
+import { type ExpenseFormData } from '../../lib/validations'
+import ExpenseModal from '../../components/ExpenseModal'
 import DeleteConfirmDialog from '../../components/DeleteConfirmDialog'
 import { formatDate, isCurrentMonthByInterval } from '../../utils/dateUtils'
 
-export default function IncomesPage() {
+export default function ExpensesPage() {
   const { user, isLoading } = useAuth()
   const router = useRouter()
-  const { incomes, isLoading: incomesLoading, mutate } = useIncomes()
-  const { categories, isLoading: categoriesLoading } = useIncomeCategories()
+  const { expenses, isLoading: expensesLoading, mutate } = useExpenses()
+  const { categories, isLoading: categoriesLoading } = useExpenseCategories()
   
   const [showModal, setShowModal] = useState(false)
-  const [editingIncome, setEditingIncome] = useState<Income | null>(null)
+  const [editingExpense, setEditingExpense] = useState<Expense | null>(null)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
-  const [deletingIncome, setDeletingIncome] = useState<Income | null>(null)
+  const [deletingExpense, setDeletingExpense] = useState<Expense | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
 
   // 認証チェック
@@ -28,52 +28,52 @@ export default function IncomesPage() {
     return null
   }
 
-  const handleSubmit = async (data: IncomeFormData) => {
+  const handleSubmit = async (data: ExpenseFormData) => {
     try {
-      if (editingIncome) {
-        await apiClient.updateIncome(editingIncome.id, {
+      if (editingExpense) {
+        await apiClient.updateExpense(editingExpense.id, {
           categoryId: data.categoryId,
           amount: data.amount,
-          memo: data.memo || undefined,
+          description: data.description || undefined,
           date: data.date
         })
       } else {
-        await apiClient.createIncome({
+        await apiClient.createExpense({
           categoryId: data.categoryId,
           amount: data.amount,
-          memo: data.memo || undefined,
+          description: data.description || undefined,
           date: data.date
         })
       }
       
       mutate() // SWRでデータを再取得
     } catch (error) {
-      console.error('Error saving income:', error)
+      console.error('Error saving expense:', error)
       throw error
     }
   }
 
-  const handleEdit = (income: Income) => {
-    setEditingIncome(income)
+  const handleEdit = (expense: Expense) => {
+    setEditingExpense(expense)
     setShowModal(true)
   }
 
-  const handleDelete = (income: Income) => {
-    setDeletingIncome(income)
+  const handleDelete = (expense: Expense) => {
+    setDeletingExpense(expense)
     setShowDeleteDialog(true)
   }
 
   const confirmDelete = async () => {
-    if (!deletingIncome) return
+    if (!deletingExpense) return
     
     try {
       setIsDeleting(true)
-      await apiClient.deleteIncome(deletingIncome.id)
+      await apiClient.deleteExpense(deletingExpense.id)
       mutate() // SWRでデータを再取得
       setShowDeleteDialog(false)
-      setDeletingIncome(null)
+      setDeletingExpense(null)
     } catch (error) {
-      console.error('Error deleting income:', error)
+      console.error('Error deleting expense:', error)
     } finally {
       setIsDeleting(false)
     }
@@ -83,18 +83,18 @@ export default function IncomesPage() {
     return new Intl.NumberFormat('ja-JP').format(amount)
   }
 
-  // 今月の収入合計を計算
-  const monthlyTotal = incomes
-    .filter(income => isCurrentMonthByInterval(income.date))
-    .reduce((sum, income) => sum + income.amount, 0)
+  // 今月の支出合計を計算
+  const monthlyTotal = expenses
+    .filter(expense => isCurrentMonthByInterval(expense.date))
+    .reduce((sum, expense) => sum + expense.amount, 0)
 
   // 今月の記録件数を計算
-  const monthlyCount = incomes.filter(income => isCurrentMonthByInterval(income.date)).length
+  const monthlyCount = expenses.filter(expense => isCurrentMonthByInterval(expense.date)).length
 
-  if (isLoading || incomesLoading || categoriesLoading) {
+  if (isLoading || expensesLoading || categoriesLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg">読み込み中...</div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-lg text-gray-600">読み込み中...</div>
       </div>
     )
   }
@@ -105,15 +105,15 @@ export default function IncomesPage() {
         <div className="py-6">
           {/* ヘッダー */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">収入管理</h1>
-            <p className="text-gray-600">毎日の収入を記録して家計を管理しましょう</p>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">支出管理</h1>
+            <p className="text-gray-600">毎日の支出を記録して家計を管理しましょう</p>
           </div>
 
-          {/* 今月の収入サマリー */}
-          <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-2xl p-6 mb-8 text-white shadow-lg">
+          {/* 今月の支出サマリー */}
+          <div className="bg-gradient-to-r from-red-500 to-red-600 rounded-2xl p-6 mb-8 text-white shadow-lg">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-medium mb-1">今月の収入</h2>
+                <h2 className="text-lg font-medium mb-1">今月の支出</h2>
                 <p className="text-3xl font-bold">¥{formatAmount(monthlyTotal)}</p>
               </div>
               <div className="text-right">
@@ -127,67 +127,67 @@ export default function IncomesPage() {
 
           {/* アクションボタン */}
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold text-gray-900">収入履歴</h2>
+            <h2 className="text-xl font-semibold text-gray-900">支出履歴</h2>
             <button
               onClick={() => {
-                setEditingIncome(null)
+                setEditingExpense(null)
                 setShowModal(true)
               }}
-              className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-lg hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all shadow-md"
+              className="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-lg hover:from-red-600 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all shadow-md"
             >
               <span className="flex items-center">
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
-                収入を追加
+                支出を追加
               </span>
             </button>
           </div>
 
-          {/* 収入一覧 */}
+          {/* 支出一覧 */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-            {incomes.length === 0 ? (
+            {expenses.length === 0 ? (
               <div className="px-6 py-12 text-center">
                 <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                   <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">収入データがありません</h3>
-                <p className="text-gray-500 mb-4">最初の収入を記録してみましょう</p>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">支出データがありません</h3>
+                <p className="text-gray-500 mb-4">最初の支出を記録してみましょう</p>
                 <button
                   onClick={() => {
-                    setEditingIncome(null)
+                    setEditingExpense(null)
                     setShowModal(true)
                   }}
-                  className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
+                  className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors"
                 >
-                  収入を追加
+                  支出を追加
                 </button>
               </div>
             ) : (
               <div className="divide-y divide-gray-200">
-                {incomes.map((income) => (
-                  <div key={income.id} className="p-6 hover:bg-gray-50 transition-colors">
+                {expenses.map((expense) => (
+                  <div key={expense.id} className="p-6 hover:bg-gray-50 transition-colors">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-4">
                         {/* カテゴリアイコン */}
-                        <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                          <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                          <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                           </svg>
                         </div>
                         
                         <div>
                           <h3 className="text-lg font-medium text-gray-900">
-                            {income.category.name}
+                            {expense.category.name}
                           </h3>
                           <p className="text-sm text-gray-500">
-                            {formatDate(income.date)}
+                            {formatDate(expense.date)}
                           </p>
-                          {income.memo && (
+                          {expense.description && (
                             <p className="text-sm text-gray-600 mt-1">
-                              {income.memo}
+                              {expense.description}
                             </p>
                           )}
                         </div>
@@ -195,22 +195,22 @@ export default function IncomesPage() {
                       
                       <div className="flex items-center space-x-4">
                         <div className="text-right">
-                          <p className="text-xl font-bold text-green-600">
-                            +¥{formatAmount(income.amount)}
+                          <p className="text-xl font-bold text-red-600">
+                            -¥{formatAmount(expense.amount)}
                           </p>
                         </div>
                         
                         <div className="flex space-x-2">
                           <button
-                            onClick={() => handleEdit(income)}
-                            className="p-2 text-gray-400 hover:text-green-600 transition-colors"
+                            onClick={() => handleEdit(expense)}
+                            className="p-2 text-gray-400 hover:text-blue-600 transition-colors"
                           >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                             </svg>
                           </button>
                           <button
-                            onClick={() => handleDelete(income)}
+                            onClick={() => handleDelete(expense)}
                             className="p-2 text-gray-400 hover:text-red-600 transition-colors"
                           >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -229,14 +229,14 @@ export default function IncomesPage() {
       </div>
 
       {/* モーダルとダイアログ */}
-      <IncomeModal
+      <ExpenseModal
         isOpen={showModal}
         onClose={() => {
           setShowModal(false)
-          setEditingIncome(null)
+          setEditingExpense(null)
         }}
         onSubmit={handleSubmit}
-        income={editingIncome}
+        expense={editingExpense}
         categories={categories}
       />
 
@@ -244,11 +244,11 @@ export default function IncomesPage() {
         isOpen={showDeleteDialog}
         onClose={() => {
           setShowDeleteDialog(false)
-          setDeletingIncome(null)
+          setDeletingExpense(null)
         }}
         onConfirm={confirmDelete}
-        title="収入を削除"
-        message={`「${deletingIncome?.category.name} - ¥${deletingIncome ? formatAmount(deletingIncome.amount) : ''}」を削除しますか？`}
+        title="支出を削除"
+        message={`「${deletingExpense?.category.name} - ¥${deletingExpense ? formatAmount(deletingExpense.amount) : ''}」を削除しますか？`}
         isLoading={isDeleting}
       />
     </div>

@@ -57,9 +57,9 @@ router.post('/token', async (req: Request, res: Response): Promise<void> => {
 
     console.log('POST /api/auth/token - Token generated successfully for user:', dbUser.id)
     
-    // Cookieにトークンをセット
-    res.cookie('wadake_token', token, {
-      httpOnly: true,
+    // CookieにJWTトークンを設定
+    res.cookie('wadake_jwt_token', token, {
+      httpOnly: true, // フロントエンドからアクセス不可にする
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 24 * 60 * 60 * 1000 // 24時間
@@ -77,7 +77,7 @@ router.post('/token', async (req: Request, res: Response): Promise<void> => {
 
 // ログアウト
 router.post('/logout', (req: Request, res: Response): void => {
-  res.clearCookie('wadake_token')
+  res.clearCookie('wadake_jwt_token')
   res.json({ message: 'ログアウトしました' })
 })
 

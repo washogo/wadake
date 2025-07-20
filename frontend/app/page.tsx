@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 
 export default function HomePage() {
-  const { user, isLoading, signOut } = useAuth()
+  const { user, isLoading } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
@@ -26,10 +26,7 @@ export default function HomePage() {
     return null
   }
 
-  const handleSignOut = async () => {
-    await signOut()
-    router.push('/login')
-  }
+
 
   if (isLoading) {
     return (
@@ -43,14 +40,9 @@ export default function HomePage() {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="py-8">
-          <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">家計簿アプリ「wadake」</h1>
-            <button
-              onClick={handleSignOut}
-              className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
-            >
-              ログアウト
-            </button>
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">家計簿アプリ「wadake」</h1>
+            <p className="text-gray-600">マネーフォワード風の家計管理アプリ</p>
           </div>
           
           <div className="bg-white shadow rounded-lg p-6">
@@ -69,7 +61,7 @@ export default function HomePage() {
               <p className="text-gray-600">収入の記録と管理を行います</p>
               <button
                 onClick={() => router.push('/incomes')}
-                className="mt-3 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="mt-3 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
               >
                 収入管理を開く
               </button>
@@ -78,6 +70,12 @@ export default function HomePage() {
             <div className="bg-white shadow rounded-lg p-6">
               <h3 className="text-lg font-medium text-gray-900 mb-2">支出管理</h3>
               <p className="text-gray-600">支出の記録と管理を行います</p>
+              <button
+                onClick={() => router.push('/expenses')}
+                className="mt-3 bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+              >
+                支出管理を開く
+              </button>
             </div>
             
             <div className="bg-white shadow rounded-lg p-6">

@@ -1,76 +1,87 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useEffect } from 'react'
-import { incomeSchema, type IncomeFormData } from '../lib/validations'
-import { Income } from '../hooks/useIncomes'
+import { expenseSchema, type ExpenseFormData } from '../lib/validations'
+import { type Category } from '../hooks/useExpenses'
 import { format } from 'date-fns'
 
-interface IncomeModalProps {
+interface ExpenseModalProps {
   isOpen: boolean
   onClose: () => void
-  onSubmit: (data: IncomeFormData) => Promise<void>
-  income?: Income | null
-  categories: Array<{ id: string; name: string }>
+  onSubmit: (data: ExpenseFormData) => Promise<void>
+  expense?: {
+    id: string
+    amount: number
+    description: string | null
+    date: string
+    category: {
+      id: string
+      name: string
+    }
+  } | null
+  categories: Category[]
 }
 
-export default function IncomeModal({
+export default function ExpenseModal({
   isOpen,
   onClose,
   onSubmit,
-  income,
+  expense,
   categories
-}: IncomeModalProps) {
+}: ExpenseModalProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
-    reset
-  } = useForm<IncomeFormData>({
-    resolver: zodResolver(incomeSchema),
+    reset,
+    formState: { errors }
+  } = useForm<ExpenseFormData>({
+    resolver: zodResolver(expenseSchema),
     defaultValues: {
       categoryId: '',
       amount: 0,
-      memo: '',
+      description: '',
       date: format(new Date(), 'yyyy-MM-dd')
     }
   })
 
-  // incomeプロパティが変更されたときにフォームの値を更新
   useEffect(() => {
-    if (income) {
-      // 編集モード：現在の値を設定
+    if (expense) {
       reset({
-        categoryId: income.category.id,
-        amount: income.amount,
-        memo: income.memo || '',
-        date: format(new Date(income.date), 'yyyy-MM-dd')
+        categoryId: expense.category.id,
+        amount: expense.amount,
+        description: expense.description || '',
+        date: format(new Date(expense.date), 'yyyy-MM-dd')
       })
     } else {
-      // 新規追加モード：デフォルト値にリセット
       reset({
         categoryId: '',
         amount: 0,
-        memo: '',
+        description: '',
         date: format(new Date(), 'yyyy-MM-dd')
       })
     }
-  }, [income, reset])
+  }, [expense, reset])
 
-  const handleFormSubmit = async (data: IncomeFormData) => {
+  const handleFormSubmit = async (data: ExpenseFormData) => {
     try {
+      setIsSubmitting(true)
       await onSubmit(data)
       // フォーム送信後にフォームをリセット
       reset({
         categoryId: '',
         amount: 0,
-        memo: '',
+        description: '',
         date: format(new Date(), 'yyyy-MM-dd')
       })
       onClose()
     } catch (error) {
-      console.error('Error submitting form:', error)
+      console.error('Error submitting expense:', error)
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -79,7 +90,7 @@ export default function IncomeModal({
     reset({
       categoryId: '',
       amount: 0,
-      memo: '',
+      description: '',
       date: format(new Date(), 'yyyy-MM-dd')
     })
     onClose()
@@ -91,10 +102,10 @@ export default function IncomeModal({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 overflow-hidden">
         {/* ヘッダー */}
-        <div className="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
+        <div className="bg-gradient-to-r from-red-500 to-red-600 px-6 py-4">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold text-white">
-              {income ? '収入を編集' : '収入を追加'}
+              {expense ? '支出を編集' : '支出を追加'}
             </h2>
             <button
               onClick={handleClose}
@@ -121,7 +132,7 @@ export default function IncomeModal({
               <input
                 type="number"
                 {...register('amount', { valueAsNumber: true })}
-                className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-lg font-medium"
+                className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-lg font-medium"
                 placeholder="0"
                 min="1"
               />
@@ -138,7 +149,7 @@ export default function IncomeModal({
             </label>
             <select
               {...register('categoryId')}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
             >
               <option value="">カテゴリを選択</option>
               {categories.map((category) => (
@@ -160,26 +171,26 @@ export default function IncomeModal({
             <input
               type="date"
               {...register('date')}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
             />
             {errors.date && (
               <p className="mt-1 text-sm text-red-600">{errors.date.message}</p>
             )}
           </div>
 
-          {/* メモ */}
+          {/* 説明文 */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               メモ
             </label>
             <textarea
-              {...register('memo')}
+              {...register('description')}
               rows={3}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none"
-              placeholder="収入の詳細を入力（任意）"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 resize-none"
+              placeholder="支出の詳細を入力（任意）"
             />
-            {errors.memo && (
-              <p className="mt-1 text-sm text-red-600">{errors.memo.message}</p>
+            {errors.description && (
+              <p className="mt-1 text-sm text-red-600">{errors.description.message}</p>
             )}
           </div>
 
@@ -195,13 +206,13 @@ export default function IncomeModal({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 px-4 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="flex-1 px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
-              {isSubmitting ? '保存中...' : income ? '更新' : '追加'}
+              {isSubmitting ? '保存中...' : expense ? '更新' : '追加'}
             </button>
           </div>
         </form>
       </div>
     </div>
   )
-}
+} 
