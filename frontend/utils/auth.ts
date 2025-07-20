@@ -15,25 +15,8 @@ export interface AuthState {
 
 class AuthManager {
   private supabase = createClient()
-  private tokenKey = 'wadake_backend_token'
 
-  // バックエンドトークンを取得
-  private getBackendToken(): string | null {
-    if (typeof window === 'undefined') return null
-    return localStorage.getItem(this.tokenKey)
-  }
 
-  // バックエンドトークンを保存
-  private setBackendToken(token: string): void {
-    if (typeof window === 'undefined') return
-    localStorage.setItem(this.tokenKey, token)
-  }
-
-  // バックエンドトークンを削除
-  private removeBackendToken(): void {
-    if (typeof window === 'undefined') return
-    localStorage.removeItem(this.tokenKey)
-  }
 
   // 認証状態を初期化
   async initializeAuth(): Promise<AuthState> {
@@ -45,17 +28,7 @@ class AuthManager {
         return { user: null, isLoading: false, error: null }
       }
 
-      // バックエンドトークンを確認
-      const backendToken = this.getBackendToken()
-      
-      if (backendToken) {
-        apiClient.setToken(backendToken)
-        const { data, error } = await apiClient.getMe()
-        
-        if (data && !error) {
-          return { user: data.user, isLoading: false, error: null }
-        }
-      }
+
 
       // バックエンドトークンを取得
       console.log('AuthManager - Getting backend token for user:', session.user)
@@ -66,9 +39,7 @@ class AuthManager {
         return { user: null, isLoading: false, error: tokenError || 'トークンの取得に失敗しました' }
       }
 
-      // トークンを保存
-      this.setBackendToken(tokenData.token)
-      apiClient.setToken(tokenData.token)
+
 
       return { user: tokenData.user, isLoading: false, error: null }
     } catch (error) {
@@ -96,8 +67,6 @@ class AuthManager {
   // ログアウト
   async signOut(): Promise<void> {
     await this.supabase.auth.signOut()
-    this.removeBackendToken()
-    apiClient.clearToken()
     
     // バックエンドのログアウトAPIを呼び出してCookieを削除
     try {
@@ -117,16 +86,12 @@ class AuthManager {
         
         if (data && !error) {
           console.log('AuthManager - Token received successfully')
-          this.setBackendToken(data.token)
-          apiClient.setToken(data.token)
           callback({ user: data.user, isLoading: false, error: null })
         } else {
           console.error('AuthManager - Token error in SIGNED_IN:', error)
           callback({ user: null, isLoading: false, error: 'トークンの取得に失敗しました' })
         }
       } else if (event === 'SIGNED_OUT') {
-        this.removeBackendToken()
-        apiClient.clearToken()
         callback({ user: null, isLoading: false, error: null })
       }
     })

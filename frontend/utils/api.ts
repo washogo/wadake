@@ -7,19 +7,12 @@ interface ApiResponse<T> {
 
 class ApiClient {
   private baseUrl: string
-  private token: string | null = null
 
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl
   }
 
-  setToken(token: string) {
-    this.token = token
-  }
 
-  clearToken() {
-    this.token = null
-  }
 
   private async request<T>(
     endpoint: string,
@@ -32,10 +25,7 @@ class ApiClient {
       ...options.headers,
     }
 
-    if (this.token) {
-      // Type assertion to allow setting Authorization header
-      (headers as Record<string, string>)['Authorization'] = `Bearer ${this.token}`
-    }
+
 
     const fetchOptions: RequestInit = {
       ...options,
@@ -54,7 +44,8 @@ class ApiClient {
 
       return { data }
     } catch (error) {
-      return { error: `${JSON.stringify(error)}` }
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      return { error: errorMessage }
     }
   }
 
@@ -69,15 +60,9 @@ class ApiClient {
     return result
   }
 
-  // ユーザー情報の取得
-  async getMe() {
-    return this.request<{ authenticated: boolean; user: any }>('/api/auth/me')
-  }
 
-  // ヘルスチェック
-  async health() {
-    return this.request<{ status: string; database: string }>('/health')
-  }
+
+
 
   // ログアウト
   async logout() {

@@ -72,44 +72,4 @@ export const authenticateToken = async (
   }
 }
 
-// オプションの認証（認証されていなくても進めるが、認証されていればユーザー情報を追加）
-export const optionalAuth = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  const authHeader = req.headers['authorization']
-  const token = authHeader && authHeader.split(' ')[1]
-
-  if (!token) {
-    next() // 認証なしで続行
-    return
-  }
-
-  try {
-    const jwtSecret = process.env.JWT_SECRET
-    
-    if (!jwtSecret) {
-      next() // シークレットが設定されていない場合は認証なしで続行
-      return
-    }
-
-    const decoded = jwt.verify(token, jwtSecret) as BackendJWTPayload
-    
-    if (decoded.exp < Date.now() / 1000) {
-      next() // 期限切れの場合は認証なしで続行
-      return
-    }
-
-    req.user = {
-      id: decoded.sub,
-      email: decoded.email,
-      name: decoded.name
-    }
-
-    next()
-  } catch (error) {
-    console.error('JWT verification error:', error)
-    next() // エラーの場合も認証なしで続行
-  }
-} 
+ 
