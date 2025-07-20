@@ -1,4 +1,4 @@
-import { PrismaClient } from '../generated/prisma';
+import { PrismaClient } from '../generated/prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -21,6 +21,9 @@ async function main() {
     { name: '給与', type: 'income' },
     { name: 'ボーナス', type: 'income' },
     { name: '副業', type: 'income' },
+    { name: '投資収益', type: 'income' },
+    { name: '家賃収入', type: 'income' },
+    { name: '臨時収入', type: 'income' },
     { name: 'その他', type: 'income' },
   ];
 

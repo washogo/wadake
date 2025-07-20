@@ -46,6 +46,7 @@ model Income {
   userId     String
   categoryId String
   amount     Int
+  memo       String?
   date       DateTime
   user       User     @relation(fields: [userId], references: [id])
   category   Category @relation(fields: [categoryId], references: [id])
