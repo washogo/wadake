@@ -27,12 +27,9 @@ export const authenticateToken = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  // AuthorizationヘッダーまたはCookieからトークンを取得
+  // Authorizationヘッダーからトークンを取得
   const authHeader = req.headers['authorization']
-  const headerToken = authHeader && authHeader.split(' ')[1] // Bearer TOKEN
-  const cookieToken = req.cookies?.wadake_token
-  
-  const token = headerToken || cookieToken
+  const token = authHeader && authHeader.split(' ')[1] // Bearer TOKEN
 
   if (!token) {
     res.status(401).json({ error: 'アクセストークンが必要です' })

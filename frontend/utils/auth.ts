@@ -32,14 +32,16 @@ class AuthManager {
 
       // バックエンドトークンを取得
       console.log('AuthManager - Getting backend token for user:', session.user)
-      const { data: tokenData, error: tokenError } = await apiClient.getToken(session.user)
+      const { data: tokenData, error: tokenError } = await apiClient.getToken({
+        id: session.user.id,
+        email: session.user.email || '',
+        name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'Unknown User'
+      })
       
       if (tokenError || !tokenData) {
         console.error('AuthManager - Token error:', tokenError, 'Token data:', tokenData)
         return { user: null, isLoading: false, error: tokenError || 'トークンの取得に失敗しました' }
       }
-
-
 
       return { user: tokenData.user, isLoading: false, error: null }
     } catch (error) {
@@ -82,7 +84,11 @@ class AuthManager {
       if (event === 'SIGNED_IN' && session) {
         // バックエンドトークンを取得
         console.log('AuthManager - SIGNED_IN event, getting token for user:', session.user)
-        const { data, error } = await apiClient.getToken(session.user)
+        const { data, error } = await apiClient.getToken({
+          id: session.user.id,
+          email: session.user.email || '',
+          name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'Unknown User'
+        })
         
         if (data && !error) {
           console.log('AuthManager - Token received successfully')
