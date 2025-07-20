@@ -1,0 +1,87 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+// Prismaのバグにより以下のdiscussionを参考にしている
+// https://github.com/prisma/prisma/discussions/19669
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ユーザーテーブル
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  incomes   Income[]
+  expenses  Expense[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// カテゴリマスターテーブル
+model Category {
+  id        String   @id @default(cuid())
+  name      String
+  type      String   // "expense" or "income"
+  incomes   Income[]
+  expenses  Expense[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([name, type])
+}
+
+// 収入テーブル
+model Income {
+  id         String   @id @default(cuid())
+  userId     String
+  categoryId String
+  amount     Int
+  date       DateTime
+  user       User     @relation(fields: [userId], references: [id])
+  category   Category @relation(fields: [categoryId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+// 支出テーブル
+model Expense {
+  id          String   @id @default(cuid())
+  userId      String
+  categoryId  String
+  amount      Int
+  description String?
+  date        DateTime
+  user        User     @relation(fields: [userId], references: [id])
+  category    Category @relation(fields: [categoryId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// 貯金テーブル
+model Savings {
+  id        String   @id @default(cuid())
+  amount    Int
+  date      DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// 予算テーブル
+model Budget {
+  id        String   @id @default(cuid())
+  amount    Int
+  purpose   String
+  date      DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

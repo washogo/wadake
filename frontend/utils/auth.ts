@@ -1,0 +1,136 @@
+import { createClient } from './supabase/client'
+import { apiClient } from './api'
+
+export interface User {
+  id: string
+  name: string
+  email: string
+}
+
+export interface AuthState {
+  user: User | null
+  isLoading: boolean
+  error: string | null
+}
+
+class AuthManager {
+  private supabase = createClient()
+  private tokenKey = 'wadake_backend_token'
+
+  // バックエンドトークンを取得
+  private getBackendToken(): string | null {
+    if (typeof window === 'undefined') return null
+    return localStorage.getItem(this.tokenKey)
+  }
+
+  // バックエンドトークンを保存
+  private setBackendToken(token: string): void {
+    if (typeof window === 'undefined') return
+    localStorage.setItem(this.tokenKey, token)
+  }
+
+  // バックエンドトークンを削除
+  private removeBackendToken(): void {
+    if (typeof window === 'undefined') return
+    localStorage.removeItem(this.tokenKey)
+  }
+
+  // 認証状態を初期化
+  async initializeAuth(): Promise<AuthState> {
+    try {
+      // Supabaseセッションを確認
+      const { data: { session } } = await this.supabase.auth.getSession()
+      
+      if (!session) {
+        return { user: null, isLoading: false, error: null }
+      }
+
+      // バックエンドトークンを確認
+      const backendToken = this.getBackendToken()
+      
+      if (backendToken) {
+        apiClient.setToken(backendToken)
+        const { data, error } = await apiClient.getMe()
+        
+        if (data && !error) {
+          return { user: data.user, isLoading: false, error: null }
+        }
+      }
+
+      // バックエンドトークンを取得
+      console.log('AuthManager - Getting backend token for user:', session.user)
+      const { data: tokenData, error: tokenError } = await apiClient.getToken(session.user)
+      
+      if (tokenError || !tokenData) {
+        console.error('AuthManager - Token error:', tokenError, 'Token data:', tokenData)
+        return { user: null, isLoading: false, error: tokenError || 'トークンの取得に失敗しました' }
+      }
+
+      // トークンを保存
+      this.setBackendToken(tokenData.token)
+      apiClient.setToken(tokenData.token)
+
+      return { user: tokenData.user, isLoading: false, error: null }
+    } catch (error) {
+      return { user: null, isLoading: false, error: `${JSON.stringify(error)}` }
+    }
+  }
+
+  // Googleログイン
+  async signInWithGoogle(): Promise<{ error?: string }> {
+    try {
+      // Googleログイン成功後にトップ画面に遷移する
+      const { error } = await this.supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: process.env.NEXT_PUBLIC_GOOGLE_AUTH_REDIRECT_URL
+        }
+      })
+
+      return { error: error?.message }
+    } catch (error) {
+      return { error: `ログイン中にエラーが発生しました: ${error}` }
+    }
+  }
+
+  // ログアウト
+  async signOut(): Promise<void> {
+    await this.supabase.auth.signOut()
+    this.removeBackendToken()
+    apiClient.clearToken()
+    
+    // バックエンドのログアウトAPIを呼び出してCookieを削除
+    try {
+      await apiClient.logout()
+    } catch (error) {
+      console.error('Logout API error:', error)
+    }
+  }
+
+  // 認証状態の変更を監視
+  onAuthStateChange(callback: (state: AuthState) => void) {
+    return this.supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        // バックエンドトークンを取得
+        console.log('AuthManager - SIGNED_IN event, getting token for user:', session.user)
+        const { data, error } = await apiClient.getToken(session.user)
+        
+        if (data && !error) {
+          console.log('AuthManager - Token received successfully')
+          this.setBackendToken(data.token)
+          apiClient.setToken(data.token)
+          callback({ user: data.user, isLoading: false, error: null })
+        } else {
+          console.error('AuthManager - Token error in SIGNED_IN:', error)
+          callback({ user: null, isLoading: false, error: 'トークンの取得に失敗しました' })
+        }
+      } else if (event === 'SIGNED_OUT') {
+        this.removeBackendToken()
+        apiClient.clearToken()
+        callback({ user: null, isLoading: false, error: null })
+      }
+    })
+  }
+}
+
+export const authManager = new AuthManager() 
