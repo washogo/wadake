@@ -13,9 +13,10 @@ const PORT = process.env.PORT || 3001
 
 // CORS設定
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://your-frontend-domain.com'] 
-    : ['http://localhost:3000'],
+  // origin: process.env.NODE_ENV === 'production' 
+  //   ? ['https://your-frontend-domain.com'] 
+  //   : ['http://localhost:3000'],
+  origin: true,
   credentials: true
 }))
 
@@ -26,10 +27,10 @@ app.use(express.json())
 app.use(cookieParser())
 
 // ルート
-app.use('/api/auth', authRoutes)
-app.use('/api/incomes', incomeRoutes)
-app.use('/api/expenses', expenseRoutes)
-app.use('/api/categories', categoryRoutes)
+app.use('/auth', authRoutes)
+app.use('/incomes', incomeRoutes)
+app.use('/expenses', expenseRoutes)
+app.use('/categories', categoryRoutes)
 
 // ヘルスチェック
 app.get('/health', async (req, res) => {
@@ -67,26 +68,9 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   res.status(500).json({ error: 'サーバーエラーが発生しました' })
 })
 
-const server = app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`)
-  console.log(`📊 Health check: http://localhost:${PORT}/health`)
-})
+// const server = app.listen(PORT, () => {
+//   console.log(`🚀 Server running on port ${PORT}`)
+//   console.log(`📊 Health check: http://localhost:${PORT}/health`)
+// })
 
-// グレースフルシャットダウン
-process.on('SIGTERM', async () => {
-  console.log('SIGTERM received, shutting down gracefully')
-  await prisma.$disconnect()
-  server.close(() => {
-    console.log('Server closed')
-    process.exit(0)
-  })
-})
-
-process.on('SIGINT', async () => {
-  console.log('SIGINT received, shutting down gracefully')
-  await prisma.$disconnect()
-  server.close(() => {
-    console.log('Server closed')
-    process.exit(0)
-  })
-}) 
+export default app;

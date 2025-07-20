@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express'
-import { authenticateToken } from '../middleware/auth'
-import { prisma } from '../lib/prisma'
 import jwt from 'jsonwebtoken'
+import { prisma } from '../lib/prisma'
+import { authenticateToken } from '../middleware/auth'
 
 const router = Router()
 
