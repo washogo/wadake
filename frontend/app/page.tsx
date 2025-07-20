@@ -67,6 +67,12 @@ export default function HomePage() {
             <div className="bg-white shadow rounded-lg p-6">
               <h3 className="text-lg font-medium text-gray-900 mb-2">収入管理</h3>
               <p className="text-gray-600">収入の記録と管理を行います</p>
+              <button
+                onClick={() => router.push('/incomes')}
+                className="mt-3 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                収入管理を開く
+              </button>
             </div>
             
             <div className="bg-white shadow rounded-lg p-6">

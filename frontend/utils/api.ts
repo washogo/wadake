@@ -12,8 +12,6 @@ class ApiClient {
     this.baseUrl = baseUrl
   }
 
-
-
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
@@ -60,13 +58,94 @@ class ApiClient {
     return result
   }
 
-
-
-
-
   // ログアウト
   async logout() {
     return this.request<{ message: string }>('/api/auth/logout', { method: 'POST' })
+  }
+
+  // 収入一覧取得
+  async getIncomes() {
+    return this.request<Array<{
+      id: string
+      amount: number
+      memo: string | null
+      date: string
+      category: {
+        id: string
+        name: string
+        type: string
+      }
+      createdAt: string
+      updatedAt: string
+    }>>('/api/incomes')
+  }
+
+  // 収入登録
+  async createIncome(data: {
+    categoryId: string
+    amount: number
+    memo?: string
+    date: string
+  }) {
+    return this.request<{
+      id: string
+      amount: number
+      memo: string | null
+      date: string
+      category: {
+        id: string
+        name: string
+        type: string
+      }
+      createdAt: string
+      updatedAt: string
+    }>('/api/incomes', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    })
+  }
+
+  // 収入更新
+  async updateIncome(id: string, data: {
+    categoryId: string
+    amount: number
+    memo?: string
+    date: string
+  }) {
+    return this.request<{
+      id: string
+      amount: number
+      memo: string | null
+      date: string
+      category: {
+        id: string
+        name: string
+        type: string
+      }
+      createdAt: string
+      updatedAt: string
+    }>(`/api/incomes/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    })
+  }
+
+  // 収入削除
+  async deleteIncome(id: string) {
+    return this.request<{ message: string }>(`/api/incomes/${id}`, {
+      method: 'DELETE'
+    })
+  }
+
+  // 収入カテゴリ取得
+  async getIncomeCategories() {
+    return this.request<Array<{
+      id: string
+      name: string
+      type: string
+      createdAt: string
+      updatedAt: string
+    }>>('/api/categories/income')
   }
 }
 
