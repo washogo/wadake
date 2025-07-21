@@ -19,7 +19,13 @@ export async function POST(request: NextRequest) {
     });
 
     // レスポンスを取得
-    const responseData = await response.json();
+    const contentType = response.headers.get('content-type');
+    let responseData;
+    if (contentType && contentType.includes('application/json')) {
+      responseData = await response.json();
+    } else {
+      responseData = { error: await response.text() };
+    }
 
     // レスポンスヘッダーを設定
     const responseHeaders: HeadersInit = {
