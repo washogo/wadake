@@ -74,7 +74,7 @@ export default function HomePage() {
             )}
           </div>
 
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="bg-white shadow rounded-lg p-6">
               <h3 className="text-lg font-medium text-gray-900 mb-2">収入管理</h3>
               <p className="text-gray-600">収入の記録と管理を行います</p>
@@ -111,21 +111,46 @@ export default function HomePage() {
             <div className="bg-white shadow rounded-lg p-6">
               <h3 className="text-lg font-medium text-gray-900 mb-2">貯金管理</h3>
               <p className="text-gray-600">貯金の記録と管理を行います</p>
+              <button
+                onClick={() => router.push('/savings')}
+                className="mt-3 bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                貯金管理を開く
+              </button>
             </div>
 
             <div className="bg-white shadow rounded-lg p-6">
               <h3 className="text-lg font-medium text-gray-900 mb-2">予算管理</h3>
               <p className="text-gray-600">予算の設定と管理を行います</p>
+              <button
+                onClick={() => router.push('/budgets')}
+                className="mt-3 bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              >
+                予算管理を開く
+              </button>
             </div>
 
             <div className="bg-white shadow rounded-lg p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-2">分析</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">収支分析</h3>
               <p className="text-gray-600">収支の分析とレポートを表示します</p>
+              <button
+                onClick={() => router.push('/summary')}
+                className="mt-3 bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500"
+              >
+                収支分析を開く
+              </button>
             </div>
 
             <div className="bg-white shadow rounded-lg p-6">
               <h3 className="text-lg font-medium text-gray-900 mb-2">レシート解析</h3>
               <p className="text-gray-600">レシート画像から自動で支出を記録します</p>
+              <button
+                disabled
+                className="mt-3 bg-gray-400 text-white px-4 py-2 rounded-md cursor-not-allowed"
+                title="近日公開予定"
+              >
+                近日公開予定
+              </button>
             </div>
           </div>
         </div>

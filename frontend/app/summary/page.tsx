@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useMonthlySummary, useTrendSummary } from '../../hooks/useSummary';
 import { useAuth } from '../providers/AuthProvider';
 
@@ -17,6 +17,19 @@ export default function SummaryPage() {
   const { summary, isLoading: summaryLoading, error: summaryError } = useMonthlySummary(selectedYear, selectedMonth);
   const { trends, isLoading: trendsLoading, error: trendsError } = useTrendSummary();
 
+  // 年と月の選択肢をメモ化
+  const years = useMemo(() => Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i), []);
+  const months = useMemo(() => Array.from({ length: 12 }, (_, i) => i + 1), []);
+
+  // イベントハンドラーをメモ化
+  const handleYearChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedYear(parseInt(e.target.value));
+  }, []);
+
+  const handleMonthChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedMonth(parseInt(e.target.value));
+  }, []);
+
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -27,9 +40,6 @@ export default function SummaryPage() {
       </div>
     );
   }
-
-  const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
-  const months = Array.from({ length: 12 }, (_, i) => i + 1);
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -48,7 +58,7 @@ export default function SummaryPage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">年</label>
               <select
                 value={selectedYear}
-                onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+                onChange={handleYearChange}
                 className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 {years.map((year) => (
@@ -62,7 +72,7 @@ export default function SummaryPage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">月</label>
               <select
                 value={selectedMonth}
-                onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
+                onChange={handleMonthChange}
                 className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 {months.map((month) => (
@@ -75,9 +85,76 @@ export default function SummaryPage() {
           </div>
         </div>
 
+        {/* ローディング状態 */}
         {summaryLoading ? (
-          <div className="text-center py-8">
-            <p className="text-gray-600">読み込み中...</p>
+          <div className="space-y-8">
+            {/* スケルトンローディング - サマリーカード */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                  <div className="flex items-center animate-pulse">
+                    <div className="w-12 h-12 bg-gray-200 rounded-full"></div>
+                    <div className="ml-4 flex-1">
+                      <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                      <div className="h-6 bg-gray-200 rounded w-1/2"></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* スケルトンローディング - 支出割合 */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+              <div className="animate-pulse">
+                <div className="h-6 bg-gray-200 rounded w-1/4 mb-6"></div>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  <div>
+                    <div className="w-48 h-48 bg-gray-200 rounded-full mx-auto"></div>
+                  </div>
+                  <div className="space-y-4">
+                    {[...Array(3)].map((_, i) => (
+                      <div key={i} className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-4 h-4 bg-gray-200 rounded"></div>
+                          <div className="h-4 bg-gray-200 rounded w-20"></div>
+                        </div>
+                        <div className="h-4 bg-gray-200 rounded w-16"></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* スケルトンローディング - カテゴリ別 */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {[...Array(2)].map((_, i) => (
+                <div key={i} className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                  <div className="animate-pulse">
+                    <div className="h-6 bg-gray-200 rounded w-1/3 mb-6"></div>
+                    <div className="space-y-4">
+                      {[...Array(4)].map((_, j) => (
+                        <div key={j} className="flex items-center justify-between">
+                          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                          <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* ローディングメッセージ */}
+            <div className="text-center py-8">
+              <div className="inline-flex items-center space-x-3">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
+                <div>
+                  <p className="text-gray-900 font-medium">収支データを分析中...</p>
+                  <p className="text-gray-500 text-sm">カテゴリ別集計と割合を計算しています</p>
+                </div>
+              </div>
+            </div>
           </div>
         ) : summaryError ? (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-8">
@@ -243,7 +320,43 @@ export default function SummaryPage() {
         ) : null}
 
         {/* トレンドデータ */}
-        {!trendsLoading && !trendsError && trends && (
+        {trendsLoading ? (
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+            <div className="animate-pulse">
+              <div className="h-6 bg-gray-200 rounded w-1/3 mb-6"></div>
+              <div className="space-y-4">
+                {/* テーブルヘッダー */}
+                <div className="grid grid-cols-5 gap-4 py-3 border-b border-gray-200">
+                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/2 ml-auto"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/2 ml-auto"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/2 ml-auto"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/2 ml-auto"></div>
+                </div>
+                {/* テーブル行 */}
+                {[...Array(12)].map((_, i) => (
+                  <div key={i} className="grid grid-cols-5 gap-4 py-3">
+                    <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+                    <div className="h-4 bg-gray-200 rounded w-3/4 ml-auto"></div>
+                    <div className="h-4 bg-gray-200 rounded w-3/4 ml-auto"></div>
+                    <div className="h-4 bg-gray-200 rounded w-3/4 ml-auto"></div>
+                    <div className="h-4 bg-gray-200 rounded w-1/2 ml-auto"></div>
+                  </div>
+                ))}
+              </div>
+              <div className="text-center py-4">
+                <div className="inline-flex items-center space-x-2">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-teal-600"></div>
+                  <span className="text-gray-600 text-sm">トレンドデータを読み込み中...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : trendsError ? (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <p className="text-red-600">トレンドデータの取得に失敗しました: {trendsError.message}</p>
+          </div>
+        ) : !trendsLoading && !trendsError && trends ? (
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-6">過去12ヶ月のトレンド</h3>
             <div className="overflow-x-auto">
@@ -273,7 +386,7 @@ export default function SummaryPage() {
               </table>
             </div>
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   );

@@ -73,8 +73,12 @@ export function useDailySummary(date?: string) {
       return result.data as SummaryData;
     },
     {
-      refreshInterval: 30000, // 30秒ごとに更新
-      revalidateOnFocus: true,
+      refreshInterval: 120000, // 2分ごとに更新（日次データも頻繁な更新は不要）
+      revalidateOnFocus: false, // フォーカス時の再検証を無効化
+      revalidateOnReconnect: true, // ネットワーク再接続時のみ再検証
+      dedupingInterval: 30000, // 30秒間は同じリクエストを重複除去
+      errorRetryCount: 2, // エラー時の再試行回数を制限
+      errorRetryInterval: 3000, // エラー時の再試行間隔
     }
   );
 
@@ -108,8 +112,12 @@ export function useMonthlySummary(year?: number, month?: number) {
       return result.data as SummaryData;
     },
     {
-      refreshInterval: 60000, // 1分ごとに更新
-      revalidateOnFocus: true,
+      refreshInterval: 300000, // 5分ごとに更新（1分から5分に延長）
+      revalidateOnFocus: false, // フォーカス時の再検証を無効化
+      revalidateOnReconnect: true, // ネットワーク再接続時のみ再検証
+      dedupingInterval: 30000, // 30秒間は同じリクエストを重複除去
+      errorRetryCount: 2, // エラー時の再試行回数を制限
+      errorRetryInterval: 5000, // エラー時の再試行間隔
     }
   );
 
@@ -142,8 +150,12 @@ export function useYearlySummary(year?: number) {
       return result.data as SummaryData;
     },
     {
-      refreshInterval: 120000, // 2分ごとに更新
-      revalidateOnFocus: true,
+      refreshInterval: 600000, // 10分ごとに更新（年次データは変更頻度が低いため）
+      revalidateOnFocus: false, // フォーカス時の再検証を無効化
+      revalidateOnReconnect: true, // ネットワーク再接続時のみ再検証
+      dedupingInterval: 120000, // 2分間は同じリクエストを重複除去
+      errorRetryCount: 2, // エラー時の再試行回数を制限
+      errorRetryInterval: 5000, // エラー時の再試行間隔
     }
   );
 
@@ -175,8 +187,12 @@ export function useTrendSummary() {
       return result.data as TrendData;
     },
     {
-      refreshInterval: 300000, // 5分ごとに更新
-      revalidateOnFocus: true,
+      refreshInterval: 600000, // 10分ごとに更新（トレンドデータは変更頻度が低いため）
+      revalidateOnFocus: false, // フォーカス時の再検証を無効化
+      revalidateOnReconnect: true, // ネットワーク再接続時のみ再検証
+      dedupingInterval: 60000, // 1分間は同じリクエストを重複除去
+      errorRetryCount: 2, // エラー時の再試行回数を制限
+      errorRetryInterval: 5000, // エラー時の再試行間隔
     }
   );
 
