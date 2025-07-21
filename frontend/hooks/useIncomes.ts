@@ -31,8 +31,10 @@ export function useIncomes(groupId?: string) {
     () => apiClient.getIncomes(groupId)
   )
 
+  const incomes = Array.isArray(data?.data) ? data.data : []
+
   return {
-    incomes: data?.data || [],
+    incomes,
     isLoading: !error && !data,
     isError: error,
     mutate
