@@ -21,7 +21,7 @@ import { formatDate, isCurrentMonthByInterval } from '../../utils/dateUtils';
 
 export default function IncomesPage() {
   const { user, isLoading } = useAuth();
-  const { currentGroupId } = useGroup();
+  const { currentGroupId, isLoading: groupLoading } = useGroup();
   const router = useRouter();
   const {
     incomes,
@@ -154,7 +154,7 @@ export default function IncomesPage() {
   // 今月の記録件数を計算
   const monthlyCount = incomes.filter((income) => isCurrentMonthByInterval(income.date)).length;
 
-  if (isLoading || incomesLoading || categoriesLoading) {
+  if (isLoading || groupLoading || incomesLoading || categoriesLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-lg">読み込み中...</div>

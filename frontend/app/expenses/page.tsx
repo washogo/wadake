@@ -13,7 +13,7 @@ import { formatDate, isCurrentMonthByInterval } from '../../utils/dateUtils';
 
 export default function ExpensesPage() {
   const { user, isLoading } = useAuth();
-  const { currentGroupId } = useGroup();
+  const { currentGroupId, isLoading: groupLoading } = useGroup();
   const router = useRouter();
   const {
     expenses,
@@ -152,7 +152,7 @@ export default function ExpensesPage() {
   // 今月の記録件数を計算
   const monthlyCount = expenses.filter((expense) => isCurrentMonthByInterval(expense.date)).length;
 
-  if (isLoading || expensesLoading || categoriesLoading) {
+  if (isLoading || groupLoading || expensesLoading || categoriesLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-lg text-gray-600">読み込み中...</div>
