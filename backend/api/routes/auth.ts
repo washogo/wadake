@@ -82,8 +82,10 @@ router.post('/logout', (req: Request, res: Response): void => {
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     path: '/',
+    expires: new Date(0),
+    maxAge: 0
   });
-  res.json({ message: 'ログアウトしました' })
+  res.json({ message: 'ログアウトしました' }); // リダイレクトしない
 })
 
 // 認証状態確認
