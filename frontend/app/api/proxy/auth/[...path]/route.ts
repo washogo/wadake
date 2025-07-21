@@ -4,12 +4,10 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
 export async function POST(request: NextRequest) {
   try {
-    // パスパラメータを取得
+    // JSONとして受け取る
+    const jsonBody = await request.json();
     const path = request.nextUrl.pathname.replace(/^\/api\/auth\//, "");
     const backendUrl = `${BACKEND_URL}/api/auth/${path}`;
-
-    // リクエストボディを取得
-    const body = await request.text();
 
     // バックエンドにリクエストを転送
     const response = await fetch(backendUrl, {
@@ -17,7 +15,7 @@ export async function POST(request: NextRequest) {
       headers: {
         'Content-Type': 'application/json',
       },
-      body,
+      body: JSON.stringify(jsonBody),
     });
 
     // レスポンスを取得
