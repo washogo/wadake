@@ -24,7 +24,7 @@ async function handleRequest(
 ) {
   try {
     // パスパラメータを取得
-    const path = request.nextUrl.pathname.replace(/^\/api\//, "");
+    const path = request.nextUrl.pathname.replace(/^\/api\/proxy\//, "");
     const url = new URL(request.url);
     const backendUrl = `${BACKEND_URL}/api/${path}${url.search}`;
 
