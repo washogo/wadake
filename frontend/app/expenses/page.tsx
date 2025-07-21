@@ -39,6 +39,7 @@ export default function ExpensesPage() {
           description: data.description || undefined,
           date: data.date,
           groupId: currentGroupId || undefined,
+          userId: user?.id,
         });
       } else {
         await apiClient.createExpense({
@@ -47,6 +48,7 @@ export default function ExpensesPage() {
           description: data.description || undefined,
           date: data.date,
           groupId: currentGroupId || undefined,
+          userId: user?.id,
         });
       }
 

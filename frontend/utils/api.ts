@@ -79,7 +79,7 @@ class ApiClient {
   }
 
   // 収入登録
-  async createIncome(data: { categoryId: string; amount: number; memo?: string; date: string; groupId?: string }) {
+  async createIncome(data: { categoryId: string; amount: number; memo?: string; date: string; groupId?: string; userId?: string }) {
     if (data.groupId) {
       return this.request(`/groups/${data.groupId}/incomes`, {
         method: 'POST',
@@ -101,6 +101,7 @@ class ApiClient {
       memo?: string;
       date: string;
       groupId?: string;
+      userId?: string;
     }
   ) {
     if (data.groupId) {
@@ -169,6 +170,7 @@ class ApiClient {
     description?: string;
     date: string;
     groupId?: string;
+    userId?: string;
   }) {
     if (data.groupId) {
       return this.request(`/groups/${data.groupId}/expenses`, {
@@ -203,6 +205,7 @@ class ApiClient {
       description?: string;
       date: string;
       groupId?: string;
+      userId?: string;
     }
   ) {
     if (data.groupId) {

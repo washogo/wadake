@@ -39,6 +39,7 @@ export default function IncomesPage() {
           memo: data.memo || undefined,
           date: data.date,
           groupId: currentGroupId || undefined,
+          userId: user?.id,
         });
       } else {
         await apiClient.createIncome({
@@ -47,6 +48,7 @@ export default function IncomesPage() {
           memo: data.memo || undefined,
           date: data.date,
           groupId: currentGroupId || undefined,
+          userId: user?.id,
         });
       }
 
