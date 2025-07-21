@@ -66,9 +66,12 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   res.status(500).json({ error: 'サーバーエラーが発生しました' });
 });
 
-// app.listen(PORT, () => {
-//   console.log(`🚀 Server running on port ${PORT}`)
-//   console.log(`📊 Health check: http://localhost:${PORT}/health`)
-// })
+// 開発環境でのみサーバーを起動（Vercelでは不要）
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`📊 Health check: http://localhost:${PORT}/health`);
+  });
+}
 
 export default app;

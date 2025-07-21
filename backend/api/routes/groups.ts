@@ -142,7 +142,12 @@ router.put(
       const { groupId, incomeId } = req.params;
       const { categoryId, amount, memo, date } = req.body;
       const income = await prisma.income.update({
-        where: { id: incomeId, groupId },
+        where: {
+          id: incomeId,
+          AND: {
+            groupId: groupId,
+          },
+        },
         data: {
           categoryId,
           amount: parseInt(amount),
@@ -153,6 +158,7 @@ router.put(
       });
       res.json(income);
     } catch (error) {
+      console.error('グループ収入更新エラー:', error);
       res.status(500).json({ error: 'グループ収入更新エラー' });
     }
   }
@@ -165,10 +171,16 @@ router.delete(
     try {
       const { groupId, incomeId } = req.params;
       await prisma.income.delete({
-        where: { id: incomeId, groupId },
+        where: {
+          id: incomeId,
+          AND: {
+            groupId: groupId,
+          },
+        },
       });
       res.json({ message: '収入を削除しました' });
     } catch (error) {
+      console.error('グループ収入削除エラー:', error);
       res.status(500).json({ error: 'グループ収入削除エラー' });
     }
   }
@@ -230,7 +242,12 @@ router.put(
       const { groupId, expenseId } = req.params;
       const { categoryId, amount, description, date } = req.body;
       const expense = await prisma.expense.update({
-        where: { id: expenseId, groupId },
+        where: {
+          id: expenseId,
+          AND: {
+            groupId: groupId,
+          },
+        },
         data: {
           categoryId,
           amount: parseInt(amount),
@@ -241,6 +258,7 @@ router.put(
       });
       res.json(expense);
     } catch (error) {
+      console.error('グループ支出更新エラー:', error);
       res.status(500).json({ error: 'グループ支出更新エラー' });
     }
   }
@@ -253,10 +271,16 @@ router.delete(
     try {
       const { groupId, expenseId } = req.params;
       await prisma.expense.delete({
-        where: { id: expenseId, groupId },
+        where: {
+          id: expenseId,
+          AND: {
+            groupId: groupId,
+          },
+        },
       });
       res.json({ message: '支出を削除しました' });
     } catch (error) {
+      console.error('グループ支出削除エラー:', error);
       res.status(500).json({ error: 'グループ支出削除エラー' });
     }
   }
