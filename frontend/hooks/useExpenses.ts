@@ -24,9 +24,9 @@ export interface Category {
 }
 
 // 支出一覧取得（グループ対応）
-export function useExpenses(groupId?: string) {
-  const key = groupId ? `/api/groups/${groupId}/expenses` : '/api/expenses';
-  const { data, error, mutate } = useSWR(key, () => apiClient.getExpenses(groupId));
+export function useExpenses(groupId?: string, userId?: string) {
+  const key = groupId && userId ? `/api/groups/${groupId}/expenses/list?userId=${userId}` : '/api/expenses';
+  const { data, error, mutate } = useSWR(key, () => apiClient.getExpenses(groupId, userId));
 
   const expenses = Array.isArray(data?.data) ? data.data : [];
 

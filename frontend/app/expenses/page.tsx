@@ -15,7 +15,7 @@ export default function ExpensesPage() {
   const { user, isLoading } = useAuth();
   const { currentGroupId } = useGroup();
   const router = useRouter();
-  const { expenses, isLoading: expensesLoading, mutate } = useExpenses(currentGroupId || undefined);
+  const { expenses, isLoading: expensesLoading, mutate } = useExpenses(currentGroupId || undefined, user?.id);
   const { categories, isLoading: categoriesLoading } = useExpenseCategories();
 
   const [showModal, setShowModal] = useState(false);

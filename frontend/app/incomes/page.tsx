@@ -15,7 +15,7 @@ export default function IncomesPage() {
   const { user, isLoading } = useAuth();
   const { currentGroupId } = useGroup();
   const router = useRouter();
-  const { incomes, isLoading: incomesLoading, mutate } = useIncomes(currentGroupId || undefined);
+  const { incomes, isLoading: incomesLoading, mutate } = useIncomes(currentGroupId || undefined, user?.id);
   const { categories, isLoading: categoriesLoading } = useIncomeCategories();
 
   const [showModal, setShowModal] = useState(false);

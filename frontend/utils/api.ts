@@ -71,15 +71,25 @@ class ApiClient {
   }
 
   // 収入一覧取得
-  async getIncomes(groupId?: string) {
-    if (groupId) {
-      return this.request(`/groups/${groupId}/incomes`);
+  async getIncomes(groupId?: string, userId?: string) {
+    if (groupId && userId) {
+      return this.request(`/groups/${groupId}/incomes/list`, {
+        method: 'POST',
+        body: JSON.stringify({ userId }),
+      });
     }
     return this.request('/incomes');
   }
 
   // 収入登録
-  async createIncome(data: { categoryId: string; amount: number; memo?: string; date: string; groupId?: string; userId?: string }) {
+  async createIncome(data: {
+    categoryId: string;
+    amount: number;
+    memo?: string;
+    date: string;
+    groupId?: string;
+    userId?: string;
+  }) {
     if (data.groupId) {
       return this.request(`/groups/${data.groupId}/incomes`, {
         method: 'POST',
@@ -142,9 +152,12 @@ class ApiClient {
   }
 
   // 支出一覧取得
-  async getExpenses(groupId?: string) {
-    if (groupId) {
-      return this.request(`/groups/${groupId}/expenses`);
+  async getExpenses(groupId?: string, userId?: string) {
+    if (groupId && userId) {
+      return this.request(`/groups/${groupId}/expenses/list`, {
+        method: 'POST',
+        body: JSON.stringify({ userId }),
+      });
     }
     return this.request<
       Array<{

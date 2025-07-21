@@ -123,10 +123,10 @@ export default function Header() {
           <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setIsMenuOpen(false)} />
 
           {/* メニューパネル */}
-          <div className="fixed top-0 right-0 w-80 h-full bg-white shadow-xl transform transition-transform duration-300 ease-in-out">
+          <div className="fixed top-0 right-0 w-full max-w-sm h-full bg-white shadow-xl transform transition-transform duration-300 ease-in-out overflow-hidden">
             <div className="flex flex-col h-full">
               {/* メニューヘッダー */}
-              <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 flex-shrink-0">
                 <h2 className="text-lg font-semibold text-gray-900">メニュー</h2>
                 <button
                   onClick={() => setIsMenuOpen(false)}
@@ -139,20 +139,20 @@ export default function Header() {
               </div>
 
               {/* ユーザー情報 */}
-              <div className="p-6 border-b border-gray-200">
+              <div className="p-4 sm:p-6 border-b border-gray-200 flex-shrink-0">
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                  <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
                     <span className="text-green-600 font-semibold">{user?.name?.charAt(0) || 'U'}</span>
                   </div>
-                  <div>
-                    <p className="font-medium text-gray-900">{user?.name}</p>
-                    <p className="text-sm text-gray-500">{user?.email}</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-gray-900 truncate">{user?.name}</p>
+                    <p className="text-sm text-gray-500 truncate">{user?.email}</p>
                   </div>
                 </div>
               </div>
 
-              {/* ナビゲーションメニュー */}
-              <nav className="flex-1 p-6">
+              {/* ナビゲーションメニュー - スクロール可能 */}
+              <nav className="flex-1 overflow-y-auto p-4 sm:p-6">
                 <div className="space-y-2">
                   {navigationItems.map((item) => (
                     <button
@@ -167,7 +167,7 @@ export default function Header() {
                           : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                       }`}
                     >
-                      <span className="text-lg">{item.icon}</span>
+                      <span className="text-lg flex-shrink-0">{item.icon}</span>
                       <span className="font-medium">{item.name}</span>
                     </button>
                   ))}
@@ -175,7 +175,7 @@ export default function Header() {
               </nav>
 
               {/* ログアウトボタン */}
-              <div className="p-6 border-t border-gray-200">
+              <div className="p-4 sm:p-6 border-t border-gray-200 flex-shrink-0">
                 <button
                   onClick={() => {
                     handleSignOut();
