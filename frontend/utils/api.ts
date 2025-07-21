@@ -309,6 +309,67 @@ class ApiClient {
       body: JSON.stringify(data),
     });
   }
+
+  // 予算一覧取得
+  async getBudgets(groupId?: string, userId?: string) {
+    if (groupId && userId) {
+      return this.request(`/groups/${groupId}/budgets/list`, {
+        method: 'POST',
+        body: JSON.stringify({ userId }),
+      });
+    }
+    return this.request('/budgets');
+  }
+
+  // 予算登録
+  async createBudget(data: { amount: number; purpose: string; date: string; groupId?: string; userId?: string }) {
+    if (data.groupId) {
+      return this.request(`/groups/${data.groupId}/budgets`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+    }
+    return this.request('/budgets', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  // 予算更新
+  async updateBudget(
+    id: string,
+    data: {
+      amount: number;
+      purpose: string;
+      date: string;
+      groupId?: string;
+      userId?: string;
+    }
+  ) {
+    if (data.groupId) {
+      return this.request(`/groups/${data.groupId}/budgets/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      });
+    }
+    return this.request(`/budgets/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  // 予算削除
+  async deleteBudget(id: string, groupId?: string, userId?: string) {
+    if (groupId && userId) {
+      return this.request(`/groups/${groupId}/budgets/${id}`, {
+        method: 'DELETE',
+        body: JSON.stringify({ userId }),
+      });
+    }
+    return this.request(`/budgets/${id}`, {
+      method: 'DELETE',
+    });
+  }
 }
 
 export const apiClient = new ApiClient(PROXY_BASE_URL, AUTH_BASE_URL);

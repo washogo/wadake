@@ -32,7 +32,7 @@ export default function Header() {
     { name: '支出管理', path: '/expenses', icon: '💸' },
     { name: 'グループ管理', path: '/groups', icon: '👥' },
     { name: '貯金管理', path: '/savings', icon: '🏦' },
-    { name: '予算管理', path: '/budgets', icon: '📊' },
+    { name: '予算管理', path: '/budgets', icon: '�' },
     { name: '分析', path: '/analytics', icon: '📈' },
   ];
 
