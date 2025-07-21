@@ -85,10 +85,10 @@ export default function IncomeModal({ isOpen, onClose, onSubmit, income, categor
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 overflow-hidden">
         {/* ヘッダー */}
-        <div className="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
+        <div className="bg-white border-b border-gray-200 px-6 py-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-white">{income ? '収入を編集' : '収入を追加'}</h2>
-            <button onClick={handleClose} className="text-white hover:text-gray-200 transition-colors">
+            <h2 className="text-xl font-bold text-gray-900">{income ? '収入を編集' : '収入を追加'}</h2>
+            <button onClick={handleClose} className="text-gray-500 hover:text-gray-700 transition-colors">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -166,7 +166,7 @@ export default function IncomeModal({ isOpen, onClose, onSubmit, income, categor
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 px-4 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               {isSubmitting ? '保存中...' : income ? '更新' : '追加'}
             </button>

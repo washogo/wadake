@@ -149,15 +149,15 @@ export default function BudgetsPage() {
           </div>
 
           {/* 今月の予算サマリー */}
-          <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-6 mb-8 text-white shadow-lg">
+          <div className="bg-white border border-gray-200 rounded-2xl p-6 mb-8 shadow-lg">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-medium mb-1">今月の予算</h2>
-                <p className="text-3xl font-bold">¥{formatAmount(monthlyTotal)}</p>
+                <h2 className="text-lg font-medium mb-1 text-blue-600">今月の予算</h2>
+                <p className="text-3xl font-bold text-gray-900">¥{formatAmount(monthlyTotal)}</p>
               </div>
               <div className="text-right">
-                <p className="text-sm opacity-90">記録件数</p>
-                <p className="text-2xl font-bold">{monthlyCount}件</p>
+                <p className="text-sm text-gray-600">記録件数</p>
+                <p className="text-2xl font-bold text-gray-900">{monthlyCount}件</p>
               </div>
             </div>
           </div>
@@ -170,7 +170,7 @@ export default function BudgetsPage() {
                 setEditingBudget(null);
                 setShowModal(true);
               }}
-              className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-lg hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all shadow-md"
+              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all shadow-md"
             >
               <span className="flex items-center">
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

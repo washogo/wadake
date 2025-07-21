@@ -96,10 +96,10 @@ export default function ExpenseModal({ isOpen, onClose, onSubmit, expense, categ
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 overflow-hidden">
         {/* ヘッダー */}
-        <div className="bg-gradient-to-r from-red-500 to-red-600 px-6 py-4">
+        <div className="bg-white border-b border-gray-200 px-6 py-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-white">{expense ? '支出を編集' : '支出を追加'}</h2>
-            <button onClick={handleClose} className="text-white hover:text-gray-200 transition-colors">
+            <h2 className="text-xl font-bold text-gray-900">{expense ? '支出を編集' : '支出を追加'}</h2>
+            <button onClick={handleClose} className="text-gray-500 hover:text-gray-700 transition-colors">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -177,7 +177,7 @@ export default function ExpenseModal({ isOpen, onClose, onSubmit, expense, categ
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               {isSubmitting ? '保存中...' : expense ? '更新' : '追加'}
             </button>
