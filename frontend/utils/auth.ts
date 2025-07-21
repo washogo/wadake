@@ -56,7 +56,7 @@ class AuthManager {
       const { error } = await this.supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}${process.env.NEXT_PUBLIC_GOOGLE_AUTH_REDIRECT_PATH}`
+          redirectTo: `${process.env.NEXT_PUBLIC_GOOGLE_AUTH_REDIRECT_PATH}`
         }
       })
 
