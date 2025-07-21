@@ -111,32 +111,6 @@ router.post('/:groupId/incomes/list', authenticateToken, async (req: Request, re
   }
 });
 
-// グループの収入作成
-router.post('/:groupId/incomes', authenticateToken, async (req: Request, res: Response) => {
-  try {
-    const { groupId } = req.params;
-    const { userId, categoryId, amount, memo, date } = req.body;
-    if (!userId || !categoryId || !amount || !date) {
-      res.status(400).json({ error: '必要な項目が不足しています' });
-      return;
-    }
-    const income = await prisma.income.create({
-      data: {
-        userId,
-        groupId,
-        categoryId,
-        amount: parseInt(amount),
-        memo,
-        date: new Date(date),
-      },
-      include: { category: true, user: true },
-    });
-    res.json(income);
-  } catch (error) {
-    res.status(500).json({ error: 'グループ収入作成エラー' });
-  }
-});
-
 // グループの収入更新
 router.put('/:groupId/incomes/:incomeId', authenticateToken, async (req: Request, res: Response) => {
   try {
@@ -183,6 +157,32 @@ router.delete('/:groupId/incomes/:incomeId', authenticateToken, async (req: Requ
   }
 });
 
+// グループの収入作成
+router.post('/:groupId/incomes', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    const { groupId } = req.params;
+    const { userId, categoryId, amount, memo, date } = req.body;
+    if (!userId || !categoryId || !amount || !date) {
+      res.status(400).json({ error: '必要な項目が不足しています' });
+      return;
+    }
+    const income = await prisma.income.create({
+      data: {
+        userId,
+        groupId,
+        categoryId,
+        amount: parseInt(amount),
+        memo,
+        date: new Date(date),
+      },
+      include: { category: true, user: true },
+    });
+    res.json(income);
+  } catch (error) {
+    res.status(500).json({ error: 'グループ収入作成エラー' });
+  }
+});
+
 // グループ単位の支出管理API
 // グループの支出一覧取得
 router.post('/:groupId/expenses/list', authenticateToken, async (req: Request, res: Response) => {
@@ -217,32 +217,6 @@ router.post('/:groupId/expenses/list', authenticateToken, async (req: Request, r
   } catch (error) {
     console.error('グループ支出一覧取得エラー:', error);
     res.status(500).json({ error: 'グループ支出一覧取得エラー' });
-  }
-});
-
-// グループの支出作成
-router.post('/:groupId/expenses', authenticateToken, async (req: Request, res: Response) => {
-  try {
-    const { groupId } = req.params;
-    const { userId, categoryId, amount, description, date } = req.body;
-    if (!userId || !categoryId || !amount || !date) {
-      res.status(400).json({ error: '必要な項目が不足しています' });
-      return;
-    }
-    const expense = await prisma.expense.create({
-      data: {
-        userId,
-        groupId,
-        categoryId,
-        amount: parseInt(amount),
-        description,
-        date: new Date(date),
-      },
-      include: { category: true, user: true },
-    });
-    res.json(expense);
-  } catch (error) {
-    res.status(500).json({ error: 'グループ支出作成エラー' });
   }
 });
 
@@ -289,6 +263,32 @@ router.delete('/:groupId/expenses/:expenseId', authenticateToken, async (req: Re
   } catch (error) {
     console.error('グループ支出削除エラー:', error);
     res.status(500).json({ error: 'グループ支出削除エラー' });
+  }
+});
+
+// グループの支出作成
+router.post('/:groupId/expenses', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    const { groupId } = req.params;
+    const { userId, categoryId, amount, description, date } = req.body;
+    if (!userId || !categoryId || !amount || !date) {
+      res.status(400).json({ error: '必要な項目が不足しています' });
+      return;
+    }
+    const expense = await prisma.expense.create({
+      data: {
+        userId,
+        groupId,
+        categoryId,
+        amount: parseInt(amount),
+        description,
+        date: new Date(date),
+      },
+      include: { category: true, user: true },
+    });
+    res.json(expense);
+  } catch (error) {
+    res.status(500).json({ error: 'グループ支出作成エラー' });
   }
 });
 
