@@ -138,7 +138,10 @@ class ApiClient {
   }
 
   // 支出一覧取得
-  async getExpenses() {
+  async getExpenses(groupId?: string) {
+    if (groupId) {
+      return this.request(`/groups/${groupId}/expenses`)
+    }
     return this.request<Array<{
       id: string
       amount: number
@@ -160,7 +163,14 @@ class ApiClient {
     amount: number
     description?: string
     date: string
+    groupId?: string
   }) {
+    if (data.groupId) {
+      return this.request(`/groups/${data.groupId}/expenses`, {
+        method: 'POST',
+        body: JSON.stringify(data)
+      })
+    }
     return this.request<{
       id: string
       amount: number
@@ -185,7 +195,14 @@ class ApiClient {
     amount: number
     description?: string
     date: string
+    groupId?: string
   }) {
+    if (data.groupId) {
+      return this.request(`/groups/${data.groupId}/expenses/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data)
+      })
+    }
     return this.request<{
       id: string
       amount: number
@@ -205,7 +222,12 @@ class ApiClient {
   }
 
   // 支出削除
-  async deleteExpense(id: string) {
+  async deleteExpense(id: string, groupId?: string) {
+    if (groupId) {
+      return this.request(`/groups/${groupId}/expenses/${id}`, {
+        method: 'DELETE'
+      })
+    }
     return this.request<{ message: string }>(`/expenses/${id}`, {
       method: 'DELETE'
     })
@@ -225,6 +247,39 @@ class ApiClient {
   // グループ一覧取得
   async getGroups(userId: string) {
     return this.request<Array<{ id: string; name: string }>>(`/groups/user/${userId}`)
+  }
+
+  // グループ作成
+  async createGroup(data: { name: string; userId: string }) {
+    return this.request<{ id: string; name: string }>('/groups', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    })
+  }
+
+  // グループメンバー一覧取得
+  async getGroupMembers(groupId: string) {
+    return this.request<Array<{
+      userId: string
+      groupId: string
+      role: string
+      user: {
+        id: string
+        name: string
+      }
+    }>>(`/groups/${groupId}/members`)
+  }
+
+  // メンバー招待
+  async inviteGroupMember(groupId: string, data: { userId: string; role: string }) {
+    return this.request<{
+      userId: string
+      groupId: string
+      role: string
+    }>(`/groups/${groupId}/invite`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    })
   }
 }
 

@@ -1,11 +1,13 @@
 'use client'
 
 import { useAuth } from './providers/AuthProvider'
+import { useGroup } from './providers/GroupProvider'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 
 export default function HomePage() {
   const { user, isLoading } = useAuth()
+  const { groups, currentGroupId } = useGroup()
   const router = useRouter()
 
   useEffect(() => {
@@ -26,15 +28,7 @@ export default function HomePage() {
     return null
   }
 
-
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg">読み込み中...</div>
-      </div>
-    )
-  }
+  const currentGroup = groups.find(g => g.id === currentGroupId)
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -45,14 +39,38 @@ export default function HomePage() {
             <p className="text-gray-600">マネーフォワード風の家計管理アプリ</p>
           </div>
           
-          <div className="bg-white shadow rounded-lg p-6">
+          {/* ユーザー・グループ情報 */}
+          <div className="bg-white shadow rounded-lg p-6 mb-8">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">ようこそ！</h2>
-            <p className="text-gray-600 mb-4">
-              メールアドレス: {user.email}
-            </p>
-            <p className="text-gray-600">
-              ユーザー名: {user.name}
-            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <p className="text-gray-600 mb-2">
+                  ユーザー名: <span className="font-medium text-gray-900">{user.name}</span>
+                </p>
+                <p className="text-gray-600">
+                  メールアドレス: <span className="font-medium text-gray-900">{user.email}</span>
+                </p>
+              </div>
+              <div>
+                <p className="text-gray-600 mb-2">
+                  現在のグループ: {currentGroup ? (
+                    <span className="font-medium text-gray-900">{currentGroup.name}</span>
+                  ) : (
+                    <span className="text-gray-500">未選択</span>
+                  )}
+                </p>
+                <p className="text-gray-600">
+                  所属グループ数: <span className="font-medium text-gray-900">{groups.length}</span>
+                </p>
+              </div>
+            </div>
+            {groups.length === 0 && (
+              <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-blue-700 text-sm">
+                  グループに所属していません。グループ管理から新しいグループを作成するか、他のユーザーからの招待を受けてください。
+                </p>
+              </div>
+            )}
           </div>
           
           <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -75,6 +93,17 @@ export default function HomePage() {
                 className="mt-3 bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
               >
                 支出管理を開く
+              </button>
+            </div>
+
+            <div className="bg-white shadow rounded-lg p-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-2">グループ管理</h3>
+              <p className="text-gray-600">グループの作成・メンバー管理を行います</p>
+              <button
+                onClick={() => router.push('/groups')}
+                className="mt-3 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                グループ管理を開く
               </button>
             </div>
             

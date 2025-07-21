@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useAuth } from '../providers/AuthProvider'
+import { useGroup } from '../providers/GroupProvider'
 import { apiClient } from '../../utils/api'
 import { useRouter } from 'next/navigation'
 import { useIncomes, useIncomeCategories, type Income } from '../../hooks/useIncomes'
@@ -12,8 +13,9 @@ import { formatDate, isCurrentMonthByInterval } from '../../utils/dateUtils'
 
 export default function IncomesPage() {
   const { user, isLoading } = useAuth()
+  const { currentGroupId } = useGroup()
   const router = useRouter()
-  const { incomes, isLoading: incomesLoading, mutate } = useIncomes()
+  const { incomes, isLoading: incomesLoading, mutate } = useIncomes(currentGroupId || undefined)
   const { categories, isLoading: categoriesLoading } = useIncomeCategories()
   
   const [showModal, setShowModal] = useState(false)
@@ -35,14 +37,16 @@ export default function IncomesPage() {
           categoryId: data.categoryId,
           amount: data.amount,
           memo: data.memo || undefined,
-          date: data.date
+          date: data.date,
+          groupId: currentGroupId || undefined
         })
       } else {
         await apiClient.createIncome({
           categoryId: data.categoryId,
           amount: data.amount,
           memo: data.memo || undefined,
-          date: data.date
+          date: data.date,
+          groupId: currentGroupId || undefined
         })
       }
       
@@ -68,7 +72,7 @@ export default function IncomesPage() {
     
     try {
       setIsDeleting(true)
-      await apiClient.deleteIncome(deletingIncome.id)
+      await apiClient.deleteIncome(deletingIncome.id, currentGroupId || undefined)
       mutate() // SWRでデータを再取得
       setShowDeleteDialog(false)
       setDeletingIncome(null)

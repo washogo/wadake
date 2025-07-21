@@ -23,15 +23,18 @@ export interface Category {
   updatedAt: string
 }
 
-// 支出一覧取得
-export function useExpenses() {
+// 支出一覧取得（グループ対応）
+export function useExpenses(groupId?: string) {
+  const key = groupId ? `/api/groups/${groupId}/expenses` : '/api/expenses'
   const { data, error, mutate } = useSWR(
-    '/api/expenses',
-    () => apiClient.getExpenses()
+    key,
+    () => apiClient.getExpenses(groupId)
   )
 
+  const expenses = Array.isArray(data?.data) ? data.data : []
+
   return {
-    expenses: data?.data || [],
+    expenses,
     isLoading: !error && !data,
     isError: error,
     mutate

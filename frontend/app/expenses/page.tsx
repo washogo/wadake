@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useAuth } from '../providers/AuthProvider'
+import { useGroup } from '../providers/GroupProvider'
 import { apiClient } from '../../utils/api'
 import { useRouter } from 'next/navigation'
 import { useExpenses, useExpenseCategories, type Expense } from '../../hooks/useExpenses'
@@ -12,8 +13,9 @@ import { formatDate, isCurrentMonthByInterval } from '../../utils/dateUtils'
 
 export default function ExpensesPage() {
   const { user, isLoading } = useAuth()
+  const { currentGroupId } = useGroup()
   const router = useRouter()
-  const { expenses, isLoading: expensesLoading, mutate } = useExpenses()
+  const { expenses, isLoading: expensesLoading, mutate } = useExpenses(currentGroupId || undefined)
   const { categories, isLoading: categoriesLoading } = useExpenseCategories()
   
   const [showModal, setShowModal] = useState(false)
@@ -35,14 +37,16 @@ export default function ExpensesPage() {
           categoryId: data.categoryId,
           amount: data.amount,
           description: data.description || undefined,
-          date: data.date
+          date: data.date,
+          groupId: currentGroupId || undefined
         })
       } else {
         await apiClient.createExpense({
           categoryId: data.categoryId,
           amount: data.amount,
           description: data.description || undefined,
-          date: data.date
+          date: data.date,
+          groupId: currentGroupId || undefined
         })
       }
       
@@ -68,7 +72,7 @@ export default function ExpensesPage() {
     
     try {
       setIsDeleting(true)
-      await apiClient.deleteExpense(deletingExpense.id)
+      await apiClient.deleteExpense(deletingExpense.id, currentGroupId || undefined)
       mutate() // SWRでデータを再取得
       setShowDeleteDialog(false)
       setDeletingExpense(null)
