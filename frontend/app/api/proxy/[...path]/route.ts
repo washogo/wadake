@@ -32,13 +32,13 @@ async function handleRequest(
     const jwtToken = request.cookies.get('wadake_jwt_token')?.value;
 
     // リクエストヘッダーを準備
-    const headers: HeadersInit = {
+    const reqHeaders: HeadersInit = {
       'Content-Type': 'application/json',
     };
 
     // JWTトークンがある場合はAuthorizationヘッダーに追加
     if (jwtToken) {
-      headers['Authorization'] = `Bearer ${jwtToken}`;
+      reqHeaders['Authorization'] = `Bearer ${jwtToken}`;
     }
 
     // リクエストボディを取得（GET以外の場合）
@@ -50,7 +50,7 @@ async function handleRequest(
     // バックエンドにリクエストを転送
     const response = await fetch(backendUrl, {
       method,
-      headers,
+      headers: reqHeaders,
       body,
     });
 
@@ -58,19 +58,22 @@ async function handleRequest(
     const responseData = await response.json();
 
     // レスポンスヘッダーを設定
-    const responseHeaders: HeadersInit = {
-      'Content-Type': 'application/json',
-    };
+    const headers = new Headers();
+    headers.set('Content-Type', 'application/json');
 
     // バックエンドからCookieを転送
-    const setCookieHeader = response.headers.get('set-cookie');
-    if (setCookieHeader) {
-      responseHeaders['set-cookie'] = setCookieHeader;
+    const setCookieHeaders = response.headers.getSetCookie ? response.headers.getSetCookie() : response.headers.get('set-cookie');
+    if (setCookieHeaders) {
+      if (Array.isArray(setCookieHeaders)) {
+        setCookieHeaders.forEach((cookie: string) => headers.append('set-cookie', cookie));
+      } else {
+        headers.append('set-cookie', setCookieHeaders);
+      }
     }
 
     return NextResponse.json(responseData, {
       status: response.status,
-      headers: responseHeaders,
+      headers,
     });
   } catch (error) {
     console.error('Proxy error:', error);
