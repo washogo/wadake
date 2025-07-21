@@ -378,7 +378,7 @@ class ApiClient {
     if (groupId) params.append('groupId', groupId);
 
     if (groupId && userId) {
-      return this.request(`/groups/${groupId}/summary/daily?${params}`, {
+      return this.request(`/summary/groups/${groupId}/daily?${params}`, {
         method: 'POST',
         body: JSON.stringify({ userId }),
       });
@@ -393,7 +393,7 @@ class ApiClient {
     if (groupId) params.append('groupId', groupId);
 
     if (groupId && userId) {
-      return this.request(`/groups/${groupId}/summary/monthly?${params}`, {
+      return this.request(`/summary/groups/${groupId}/monthly?${params}`, {
         method: 'POST',
         body: JSON.stringify({ userId }),
       });
@@ -407,7 +407,7 @@ class ApiClient {
     if (groupId) params.append('groupId', groupId);
 
     if (groupId && userId) {
-      return this.request(`/groups/${groupId}/summary/yearly?${params}`, {
+      return this.request(`/summary/groups/${groupId}/yearly?${params}`, {
         method: 'POST',
         body: JSON.stringify({ userId }),
       });
@@ -417,7 +417,7 @@ class ApiClient {
 
   async getTrendSummary(groupId?: string, userId?: string) {
     if (groupId && userId) {
-      return this.request(`/groups/${groupId}/summary/trend`, {
+      return this.request(`/summary/groups/${groupId}/trend`, {
         method: 'POST',
         body: JSON.stringify({ userId }),
       });
