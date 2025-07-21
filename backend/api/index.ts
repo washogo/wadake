@@ -7,7 +7,6 @@ import expenseRoutes from './routes/expenses'
 import categoryRoutes from './routes/categories'
 import { prisma } from './lib/prisma'
 
-
 const app = express()
 const PORT = process.env.PORT || 3001
 
@@ -27,10 +26,10 @@ app.use(express.json())
 app.use(cookieParser())
 
 // ルート
-app.use('/auth', authRoutes)
-app.use('/incomes', incomeRoutes)
-app.use('/expenses', expenseRoutes)
-app.use('/categories', categoryRoutes)
+app.use('/api/auth', authRoutes)
+app.use('/api/incomes', incomeRoutes)
+app.use('/api/expenses', expenseRoutes)
+app.use('/api/categories', categoryRoutes)
 
 // ヘルスチェック
 app.get('/health', async (req, res) => {
@@ -57,18 +56,13 @@ app.get('/health', async (req, res) => {
   }
 })
 
-// 404ハンドラー
-app.all('/{*any}', (req, res) => {
-  res.status(404).json({ error: 'エンドポイントが見つかりません' })
-})
-
 // エラーハンドラー
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error('Server error:', err)
   res.status(500).json({ error: 'サーバーエラーが発生しました' })
 })
 
-// const server = app.listen(PORT, () => {
+// app.listen(PORT, () => {
 //   console.log(`🚀 Server running on port ${PORT}`)
 //   console.log(`📊 Health check: http://localhost:${PORT}/health`)
 // })

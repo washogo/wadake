@@ -3,9 +3,8 @@
   "version": "1.0.0",
   "main": "dist/index.js",
   "scripts": {
-    "copy-prisma": "cp -R generated dist/",
-    "copy-api-entry": "cp dist/index.js index.js",
-    "build": "npx prisma generate && tsc && npm run copy-prisma && npm run copy-api-entry",
+    "postinstall": "prisma generate",
+    "build": "tsc",
     "start": "node dist/index.js",
     "dev": "nodemon",
     "db:seed": "ts-node prisma/seed.ts",

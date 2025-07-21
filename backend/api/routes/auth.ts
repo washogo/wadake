@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express'
 import jwt from 'jsonwebtoken'
-import { prisma } from '../lib/prisma'
 import { authenticateToken } from '../middleware/auth'
+import { prisma } from '../lib/prisma'
 
 const router = Router()
 
@@ -77,7 +77,12 @@ router.post('/token', async (req: Request, res: Response): Promise<void> => {
 
 // ログアウト
 router.post('/logout', (req: Request, res: Response): void => {
-  res.clearCookie('wadake_jwt_token')
+  res.clearCookie('wadake_jwt_token', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/',
+  });
   res.json({ message: 'ログアウトしました' })
 })
 
