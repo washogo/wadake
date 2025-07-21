@@ -1,124 +1,127 @@
-'use client'
+'use client';
 
-import { useState, useEffect, useCallback } from 'react'
-import { useAuth } from '../providers/AuthProvider'
-import { useGroup } from '../providers/GroupProvider'
-import { apiClient } from '../../utils/api'
-import { GroupCreateModal, GroupInviteModal, GroupMemberCard } from '../../components/GroupComponents'
+import { useState, useEffect, useCallback } from 'react';
+import { useAuth } from '../providers/AuthProvider';
+import { useGroup } from '../providers/GroupProvider';
+import { apiClient } from '../../utils/api';
+import { GroupCreateModal, GroupInviteModal, GroupMemberCard } from '../../components/GroupComponents';
 
 interface GroupMember {
-  userId: string
-  groupId: string
-  role: string
+  userId: string;
+  groupId: string;
+  role: string;
   user: {
-    id: string
-    name: string
-  }
+    id: string;
+    name: string;
+  };
 }
 
 interface GroupDetail {
-  id: string
-  name: string
-  members: GroupMember[]
+  id: string;
+  name: string;
+  members: GroupMember[];
 }
 
 export default function GroupsPage() {
-  const { user } = useAuth()
-  const { groups, currentGroupId } = useGroup()
-  const [currentGroup, setCurrentGroup] = useState<GroupDetail | null>(null)
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [successMessage, setSuccessMessage] = useState('')
+  const { user } = useAuth();
+  const { groups, currentGroupId } = useGroup();
+  const [currentGroup, setCurrentGroup] = useState<GroupDetail | null>(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   // 現在のグループ詳細を取得
-  const loadGroupDetail = useCallback(async (groupId: string) => {
-    setLoading(true)
-    try {
-      const membersResult = await apiClient.getGroupMembers(groupId)
-      if (membersResult.data) {
-        const group = groups.find(g => g.id === groupId)
-        if (group) {
-          setCurrentGroup({
-            id: group.id,
-            name: group.name,
-            members: membersResult.data
-          })
+  const loadGroupDetail = useCallback(
+    async (groupId: string) => {
+      setLoading(true);
+      try {
+        const membersResult = await apiClient.getGroupMembers(groupId);
+        if (membersResult.data) {
+          const group = groups.find((g) => g.id === groupId);
+          if (group) {
+            setCurrentGroup({
+              id: group.id,
+              name: group.name,
+              members: membersResult.data,
+            });
+          }
         }
+      } catch {
+        setError('グループ詳細の取得に失敗しました');
+      } finally {
+        setLoading(false);
       }
-    } catch {
-      setError('グループ詳細の取得に失敗しました')
-    } finally {
-      setLoading(false)
-    }
-  }, [groups])
+    },
+    [groups]
+  );
 
   useEffect(() => {
     if (currentGroupId) {
-      loadGroupDetail(currentGroupId)
+      loadGroupDetail(currentGroupId);
     }
-  }, [currentGroupId, loadGroupDetail])
+  }, [currentGroupId, loadGroupDetail]);
 
   const handleCreateGroup = async (groupName: string) => {
-    if (!user) return
+    if (!user) return;
 
-    setLoading(true)
-    setError('')
+    setLoading(true);
+    setError('');
     try {
       const result = await apiClient.createGroup({
         name: groupName,
-        userId: user.id
-      })
-      
+        userId: user.id,
+      });
+
       if (result.data) {
-        setSuccessMessage('グループを作成しました')
-        setIsCreateModalOpen(false)
+        setSuccessMessage('グループを作成しました');
+        setIsCreateModalOpen(false);
         // グループ一覧を再読み込み
-        window.location.reload()
+        window.location.reload();
       } else {
-        setError(result.error || 'グループ作成に失敗しました')
+        setError(result.error || 'グループ作成に失敗しました');
       }
     } catch {
-      setError('グループ作成に失敗しました')
+      setError('グループ作成に失敗しました');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleInviteMember = async (userId: string, role: string) => {
-    if (!currentGroupId) return
+    if (!currentGroupId) return;
 
-    setLoading(true)
-    setError('')
+    setLoading(true);
+    setError('');
     try {
       const result = await apiClient.inviteGroupMember(currentGroupId, {
         userId,
-        role
-      })
-      
+        role,
+      });
+
       if (result.data) {
-        setSuccessMessage('メンバーを招待しました')
-        setIsInviteModalOpen(false)
+        setSuccessMessage('メンバーを招待しました');
+        setIsInviteModalOpen(false);
         // グループ詳細を再読み込み
-        loadGroupDetail(currentGroupId)
+        loadGroupDetail(currentGroupId);
       } else {
-        setError(result.error || 'メンバー招待に失敗しました')
+        setError(result.error || 'メンバー招待に失敗しました');
       }
     } catch {
-      setError('メンバー招待に失敗しました')
+      setError('メンバー招待に失敗しました');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const getUserRole = (userId: string): string => {
-    if (!currentGroup) return ''
-    const member = currentGroup.members.find(m => m.userId === userId)
-    return member?.role || ''
-  }
+    if (!currentGroup) return '';
+    const member = currentGroup.members.find((m) => m.userId === userId);
+    return member?.role || '';
+  };
 
-  const isAdmin = user ? getUserRole(user.id) === 'admin' : false
+  const isAdmin = user ? getUserRole(user.id) === 'admin' : false;
 
   return (
     <div className="max-w-4xl mx-auto p-6">
@@ -150,18 +153,14 @@ export default function GroupsPage() {
             作成する
           </button>
         </div>
-        <p className="text-gray-600">
-          家族やチームでの家計簿共有を開始するために、新しいグループを作成できます。
-        </p>
+        <p className="text-gray-600">家族やチームでの家計簿共有を開始するために、新しいグループを作成できます。</p>
       </div>
 
       {/* 現在のグループ情報 */}
       {currentGroup && (
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-gray-900">
-              {currentGroup.name} のメンバー管理
-            </h2>
+            <h2 className="text-xl font-semibold text-gray-900">{currentGroup.name} のメンバー管理</h2>
             {isAdmin && (
               <button
                 onClick={() => setIsInviteModalOpen(true)}
@@ -174,16 +173,10 @@ export default function GroupsPage() {
 
           {/* メンバー一覧 */}
           <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-4">
-              メンバー ({currentGroup.members.length}人)
-            </h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">メンバー ({currentGroup.members.length}人)</h3>
             <div className="space-y-3">
               {currentGroup.members.map((member) => (
-                <GroupMemberCard
-                  key={member.userId}
-                  member={member}
-                  currentUserId={user?.id || ''}
-                />
+                <GroupMemberCard key={member.userId} member={member} currentUserId={user?.id || ''} />
               ))}
             </div>
           </div>
@@ -229,5 +222,5 @@ export default function GroupsPage() {
         loading={loading}
       />
     </div>
-  )
+  );
 }

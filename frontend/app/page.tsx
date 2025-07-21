@@ -1,34 +1,34 @@
-'use client'
+'use client';
 
-import { useAuth } from './providers/AuthProvider'
-import { useGroup } from './providers/GroupProvider'
-import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { useAuth } from './providers/AuthProvider';
+import { useGroup } from './providers/GroupProvider';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function HomePage() {
-  const { user, isLoading } = useAuth()
-  const { groups, currentGroupId } = useGroup()
-  const router = useRouter()
+  const { user, isLoading } = useAuth();
+  const { groups, currentGroupId } = useGroup();
+  const router = useRouter();
 
   useEffect(() => {
     if (!isLoading && !user) {
-      router.push('/login')
+      router.push('/login');
     }
-  }, [user, isLoading, router])
+  }, [user, isLoading, router]);
 
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-lg">読み込み中...</div>
       </div>
-    )
+    );
   }
 
   if (!user) {
-    return null
+    return null;
   }
 
-  const currentGroup = groups.find(g => g.id === currentGroupId)
+  const currentGroup = groups.find((g) => g.id === currentGroupId);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -38,7 +38,7 @@ export default function HomePage() {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">家計簿アプリ「wadake」</h1>
             <p className="text-gray-600">マネーフォワード風の家計管理アプリ</p>
           </div>
-          
+
           {/* ユーザー・グループ情報 */}
           <div className="bg-white shadow rounded-lg p-6 mb-8">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">ようこそ！</h2>
@@ -53,7 +53,8 @@ export default function HomePage() {
               </div>
               <div>
                 <p className="text-gray-600 mb-2">
-                  現在のグループ: {currentGroup ? (
+                  現在のグループ:{' '}
+                  {currentGroup ? (
                     <span className="font-medium text-gray-900">{currentGroup.name}</span>
                   ) : (
                     <span className="text-gray-500">未選択</span>
@@ -72,7 +73,7 @@ export default function HomePage() {
               </div>
             )}
           </div>
-          
+
           <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="bg-white shadow rounded-lg p-6">
               <h3 className="text-lg font-medium text-gray-900 mb-2">収入管理</h3>
@@ -84,7 +85,7 @@ export default function HomePage() {
                 収入管理を開く
               </button>
             </div>
-            
+
             <div className="bg-white shadow rounded-lg p-6">
               <h3 className="text-lg font-medium text-gray-900 mb-2">支出管理</h3>
               <p className="text-gray-600">支出の記録と管理を行います</p>
@@ -106,22 +107,22 @@ export default function HomePage() {
                 グループ管理を開く
               </button>
             </div>
-            
+
             <div className="bg-white shadow rounded-lg p-6">
               <h3 className="text-lg font-medium text-gray-900 mb-2">貯金管理</h3>
               <p className="text-gray-600">貯金の記録と管理を行います</p>
             </div>
-            
+
             <div className="bg-white shadow rounded-lg p-6">
               <h3 className="text-lg font-medium text-gray-900 mb-2">予算管理</h3>
               <p className="text-gray-600">予算の設定と管理を行います</p>
             </div>
-            
+
             <div className="bg-white shadow rounded-lg p-6">
               <h3 className="text-lg font-medium text-gray-900 mb-2">分析</h3>
               <p className="text-gray-600">収支の分析とレポートを表示します</p>
             </div>
-            
+
             <div className="bg-white shadow rounded-lg p-6">
               <h3 className="text-lg font-medium text-gray-900 mb-2">レシート解析</h3>
               <p className="text-gray-600">レシート画像から自動で支出を記録します</p>
@@ -130,5 +131,5 @@ export default function HomePage() {
         </div>
       </div>
     </div>
-  )
-} 
+  );
+}

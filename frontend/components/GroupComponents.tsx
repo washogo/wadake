@@ -1,35 +1,35 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
+import { useState } from 'react';
 
 interface GroupMember {
-  userId: string
-  groupId: string
-  role: string
+  userId: string;
+  groupId: string;
+  role: string;
   user: {
-    id: string
-    name: string
-  }
+    id: string;
+    name: string;
+  };
 }
 
 interface GroupCreateModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onSubmit: (groupName: string) => void
-  loading: boolean
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (groupName: string) => void;
+  loading: boolean;
 }
 
 export function GroupCreateModal({ isOpen, onClose, onSubmit, loading }: GroupCreateModalProps) {
-  const [groupName, setGroupName] = useState('')
+  const [groupName, setGroupName] = useState('');
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     if (groupName.trim()) {
-      onSubmit(groupName.trim())
+      onSubmit(groupName.trim());
     }
-  }
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -69,28 +69,28 @@ export function GroupCreateModal({ isOpen, onClose, onSubmit, loading }: GroupCr
         </form>
       </div>
     </div>
-  )
+  );
 }
 
 interface GroupInviteModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onSubmit: (userId: string, role: string) => void
-  loading: boolean
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (userId: string, role: string) => void;
+  loading: boolean;
 }
 
 export function GroupInviteModal({ isOpen, onClose, onSubmit, loading }: GroupInviteModalProps) {
-  const [userId, setUserId] = useState('')
-  const [role, setRole] = useState('member')
+  const [userId, setUserId] = useState('');
+  const [role, setRole] = useState('member');
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     if (userId.trim()) {
-      onSubmit(userId.trim(), role)
+      onSubmit(userId.trim(), role);
     }
-  }
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -144,12 +144,12 @@ export function GroupInviteModal({ isOpen, onClose, onSubmit, loading }: GroupIn
         </form>
       </div>
     </div>
-  )
+  );
 }
 
 interface GroupMemberCardProps {
-  member: GroupMember
-  currentUserId: string
+  member: GroupMember;
+  currentUserId: string;
 }
 
 export function GroupMemberCard({ member, currentUserId }: GroupMemberCardProps) {
@@ -157,9 +157,7 @@ export function GroupMemberCard({ member, currentUserId }: GroupMemberCardProps)
     <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
       <div className="flex items-center space-x-3">
         <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-          <span className="text-green-600 font-semibold">
-            {member.user.name.charAt(0)}
-          </span>
+          <span className="text-green-600 font-semibold">{member.user.name.charAt(0)}</span>
         </div>
         <div>
           <p className="font-medium text-gray-900">{member.user.name}</p>
@@ -167,19 +165,17 @@ export function GroupMemberCard({ member, currentUserId }: GroupMemberCardProps)
         </div>
       </div>
       <div className="flex items-center space-x-3">
-        <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-          member.role === 'admin' 
-            ? 'bg-purple-100 text-purple-700' 
-            : 'bg-blue-100 text-blue-700'
-        }`}>
+        <span
+          className={`px-3 py-1 rounded-full text-sm font-medium ${
+            member.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'
+          }`}
+        >
           {member.role === 'admin' ? '管理者' : 'メンバー'}
         </span>
         {member.userId === currentUserId && (
-          <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
-            あなた
-          </span>
+          <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">あなた</span>
         )}
       </div>
     </div>
-  )
+  );
 }
