@@ -1,5 +1,5 @@
 const PROXY_BASE_URL = '/api/proxy'
-const AUTH_BASE_URL = '/api/auth'
+const AUTH_BASE_URL = '/api/proxy/auth'
 
 interface ApiResponse<T> {
   data?: T
