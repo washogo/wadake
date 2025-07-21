@@ -24,6 +24,7 @@ model User {
   name      String
   incomes   Income[]
   expenses  Expense[]
+  groups    UserGroup[] // UserGroupとのリレーション
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -45,11 +46,13 @@ model Category {
 model Income {
   id         String   @id @default(cuid())
   userId     String
+  groupId    String?
   categoryId String
   amount     Int
   memo       String?
   date       DateTime
   user       User     @relation(fields: [userId], references: [id])
+  group      Group?   @relation(fields: [groupId], references: [id])
   category   Category @relation(fields: [categoryId], references: [id])
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -59,11 +62,13 @@ model Income {
 model Expense {
   id          String   @id @default(cuid())
   userId      String
+  groupId     String?
   categoryId  String
   amount      Int
   description String?
   date        DateTime
   user        User     @relation(fields: [userId], references: [id])
+  group       Group?   @relation(fields: [groupId], references: [id])
   category    Category @relation(fields: [categoryId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -72,6 +77,8 @@ model Expense {
 // 貯金テーブル
 model Savings {
   id        String   @id @default(cuid())
+  groupId   String?
+  group     Group?   @relation(fields: [groupId], references: [id])
   amount    Int
   date      DateTime
   createdAt DateTime @default(now())
@@ -81,9 +88,32 @@ model Savings {
 // 予算テーブル
 model Budget {
   id        String   @id @default(cuid())
+  groupId   String?
+  group     Group?   @relation(fields: [groupId], references: [id])
   amount    Int
   purpose   String
   date      DateTime
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Group {
+  id        String   @id @default(cuid())
+  name      String
+  users     UserGroup[]
+  incomes   Income[]
+  expenses  Expense[]
+  savings   Savings[]
+  budgets   Budget[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model UserGroup {
+  userId  String
+  groupId String
+  role    String  // 'admin' or 'member'
+  user    User   @relation(fields: [userId], references: [id])
+  group   Group  @relation(fields: [groupId], references: [id])
+  @@id([userId, groupId])
 }

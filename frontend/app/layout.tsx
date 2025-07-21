@@ -1,4 +1,5 @@
 import { AuthProvider } from './providers/AuthProvider'
+import { GroupProvider } from './providers/GroupProvider'
 import './globals.css'
 import Header from '../components/Header'
 
@@ -16,10 +17,12 @@ export default function RootLayout({
     <html lang="ja">
       <body>
         <AuthProvider>
-          <Header />
-          <main>
-            {children}
-          </main>
+          <GroupProvider>
+            <Header />
+            <main>
+              {children}
+            </main>
+          </GroupProvider>
         </AuthProvider>
       </body>
     </html>

@@ -23,11 +23,12 @@ export interface Category {
   updatedAt: string
 }
 
-// 収入一覧取得
-export function useIncomes() {
+// 収入一覧取得（グループ対応）
+export function useIncomes(groupId?: string) {
+  const key = groupId ? `/api/groups/${groupId}/incomes` : '/api/incomes'
   const { data, error, mutate } = useSWR(
-    '/api/incomes',
-    () => apiClient.getIncomes()
+    key,
+    () => apiClient.getIncomes(groupId)
   )
 
   return {

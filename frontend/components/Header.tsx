@@ -3,12 +3,14 @@
 import { useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { useAuth } from '../app/providers/AuthProvider'
+import { useGroup } from '../app/providers/GroupProvider'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
   const { user, signOut } = useAuth()
+  const { groups, currentGroupId, setCurrentGroupId } = useGroup()
 
   // ログインページではヘッダーを表示しない
   if (pathname === '/login') {
@@ -40,7 +42,7 @@ export default function Header() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* ロゴ */}
-            <div className="flex items-center">
+            <div className="flex items-center space-x-4">
               <button
                 onClick={() => router.push('/')}
                 className="flex items-center space-x-2 text-xl font-bold text-gray-900 hover:text-green-600 transition-colors"
@@ -48,6 +50,19 @@ export default function Header() {
                 <span className="text-2xl">💰</span>
                 <span>wadake</span>
               </button>
+              {/* グループ切り替えドロップダウン */}
+              {groups.length > 0 && (
+                <select
+                  value={currentGroupId || ''}
+                  onChange={e => setCurrentGroupId(e.target.value)}
+                  className="ml-4 px-3 py-1 rounded border border-gray-300 text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-green-200"
+                  style={{ minWidth: 120 }}
+                >
+                  {groups.map(g => (
+                    <option key={g.id} value={g.id}>{g.name}</option>
+                  ))}
+                </select>
+              )}
             </div>
 
             {/* デスクトップナビゲーション */}

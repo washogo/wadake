@@ -67,20 +67,11 @@ class ApiClient {
   }
 
   // 収入一覧取得
-  async getIncomes() {
-    return this.request<Array<{
-      id: string
-      amount: number
-      memo: string | null
-      date: string
-      category: {
-        id: string
-        name: string
-        type: string
-      }
-      createdAt: string
-      updatedAt: string
-    }>>('/incomes')
+  async getIncomes(groupId?: string) {
+    if (groupId) {
+      return this.request(`/groups/${groupId}/incomes`)
+    }
+    return this.request('/incomes')
   }
 
   // 収入登録
@@ -89,20 +80,15 @@ class ApiClient {
     amount: number
     memo?: string
     date: string
+    groupId?: string
   }) {
-    return this.request<{
-      id: string
-      amount: number
-      memo: string | null
-      date: string
-      category: {
-        id: string
-        name: string
-        type: string
-      }
-      createdAt: string
-      updatedAt: string
-    }>('/incomes', {
+    if (data.groupId) {
+      return this.request(`/groups/${data.groupId}/incomes`, {
+        method: 'POST',
+        body: JSON.stringify(data)
+      })
+    }
+    return this.request('/incomes', {
       method: 'POST',
       body: JSON.stringify(data)
     })
@@ -114,28 +100,28 @@ class ApiClient {
     amount: number
     memo?: string
     date: string
+    groupId?: string
   }) {
-    return this.request<{
-      id: string
-      amount: number
-      memo: string | null
-      date: string
-      category: {
-        id: string
-        name: string
-        type: string
-      }
-      createdAt: string
-      updatedAt: string
-    }>(`/incomes/${id}`, {
+    if (data.groupId) {
+      return this.request(`/groups/${data.groupId}/incomes/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data)
+      })
+    }
+    return this.request(`/incomes/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data)
     })
   }
 
   // 収入削除
-  async deleteIncome(id: string) {
-    return this.request<{ message: string }>(`/incomes/${id}`, {
+  async deleteIncome(id: string, groupId?: string) {
+    if (groupId) {
+      return this.request(`/groups/${groupId}/incomes/${id}`, {
+        method: 'DELETE'
+      })
+    }
+    return this.request(`/incomes/${id}`, {
       method: 'DELETE'
     })
   }
@@ -234,6 +220,11 @@ class ApiClient {
       createdAt: string
       updatedAt: string
     }>>('/categories/expense')
+  }
+
+  // グループ一覧取得
+  async getGroups(userId: string) {
+    return this.request<Array<{ id: string; name: string }>>(`/groups/user/${userId}`)
   }
 }
 
