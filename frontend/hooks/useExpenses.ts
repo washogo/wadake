@@ -35,10 +35,7 @@ export function useExpenses(groupId?: string, userId?: string) {
   const expenses = Array.isArray(data?.data) ? data.data : [];
 
   // 楽観的更新関数
-  const optimisticUpdate = async (
-    newData: Expense[],
-    apiCall: () => Promise<unknown>
-  ) => {
+  const optimisticUpdate = async (newData: Expense[], apiCall: () => Promise<unknown>) => {
     // 即座にUIを更新
     mutate({ data: newData }, false);
 

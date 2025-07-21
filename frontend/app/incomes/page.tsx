@@ -23,7 +23,12 @@ export default function IncomesPage() {
   const { user, isLoading } = useAuth();
   const { currentGroupId } = useGroup();
   const router = useRouter();
-  const { incomes, isLoading: incomesLoading, mutate, optimisticUpdate } = useIncomes(currentGroupId || undefined, user?.id);
+  const {
+    incomes,
+    isLoading: incomesLoading,
+    mutate,
+    optimisticUpdate,
+  } = useIncomes(currentGroupId || undefined, user?.id);
   const { categories, isLoading: categoriesLoading } = useIncomeCategories();
 
   const [showModal, setShowModal] = useState(false);
@@ -43,16 +48,21 @@ export default function IncomesPage() {
       if (editingIncome) {
         // 楽観的更新で即座にUIを更新
         await optimisticUpdate(
-          incomes?.map(income => 
-            income.id === editingIncome.id 
-              ? { ...income, ...incomeData, memo: incomeData.memo || null, category: categories?.find(c => c.id === incomeData.categoryId) || income.category }
+          incomes?.map((income) =>
+            income.id === editingIncome.id
+              ? {
+                  ...income,
+                  ...incomeData,
+                  memo: incomeData.memo || null,
+                  category: categories?.find((c) => c.id === incomeData.categoryId) || income.category,
+                }
               : income
           ) || [],
           async () => {
             const updatedData = {
               ...incomeData,
               groupId: currentGroupId || undefined,
-              userId: user?.id
+              userId: user?.id,
             };
             const response = await apiClient.updateIncome(editingIncome.id, updatedData);
             if (response.error) {
@@ -67,26 +77,27 @@ export default function IncomesPage() {
           id: Date.now().toString(), // 一時的なID
           ...incomeData,
           memo: incomeData.memo || null,
-          category: categories?.find(c => c.id === incomeData.categoryId) || { id: incomeData.categoryId, name: 'Unknown', type: 'income' },
+          category: categories?.find((c) => c.id === incomeData.categoryId) || {
+            id: incomeData.categoryId,
+            name: 'Unknown',
+            type: 'income',
+          },
           createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date().toISOString(),
         };
-        
-        await optimisticUpdate(
-          [newIncome, ...(incomes || [])],
-          async () => {
-            const createData = {
-              ...incomeData,
-              groupId: currentGroupId || undefined,
-              userId: user?.id
-            };
-            const response = await apiClient.createIncome(createData);
-            if (response.error) {
-              throw new Error(response.error);
-            }
-            return response.data;
+
+        await optimisticUpdate([newIncome, ...(incomes || [])], async () => {
+          const createData = {
+            ...incomeData,
+            groupId: currentGroupId || undefined,
+            userId: user?.id,
+          };
+          const response = await apiClient.createIncome(createData);
+          if (response.error) {
+            throw new Error(response.error);
           }
-        );
+          return response.data;
+        });
       }
       setShowModal(false);
       setEditingIncome(null);
@@ -113,16 +124,13 @@ export default function IncomesPage() {
     try {
       setIsDeleting(true);
       // 楽観的更新で即座にUIを更新（削除対象を除外）
-      await optimisticUpdate(
-        incomes?.filter(income => income.id !== deletingIncome.id) || [],
-        async () => {
-          const response = await apiClient.deleteIncome(deletingIncome.id, currentGroupId || undefined);
-          if (response.error) {
-            throw new Error(response.error);
-          }
-          return response.data;
+      await optimisticUpdate(incomes?.filter((income) => income.id !== deletingIncome.id) || [], async () => {
+        const response = await apiClient.deleteIncome(deletingIncome.id, currentGroupId || undefined);
+        if (response.error) {
+          throw new Error(response.error);
         }
-      );
+        return response.data;
+      });
       setShowDeleteDialog(false);
       setDeletingIncome(null);
     } catch (error) {
