@@ -29,8 +29,11 @@ export interface Category {
 
 // 収入一覧取得（グループ対応）
 export function useIncomes(groupId?: string, userId?: string) {
+  // groupIdとuserIdの両方が存在するか、両方ともundefinedの場合のみフェッチを実行
+  const shouldFetch = (groupId && userId) || (!groupId && !userId);
   const key = groupId && userId ? `/api/groups/${groupId}/incomes/list?userId=${userId}` : '/api/incomes';
-  const { data, error, mutate } = useSWR(key, () => apiClient.getIncomes(groupId, userId));
+
+  const { data, error, mutate } = useSWR(shouldFetch ? key : null, () => apiClient.getIncomes(groupId, userId));
 
   const incomes = Array.isArray(data?.data) ? data.data : [];
 
@@ -42,8 +45,7 @@ export function useIncomes(groupId?: string, userId?: string) {
     try {
       // バックグラウンドでAPIを実行
       await apiCall();
-      // 成功後にサーバーからデータを再取得
-      mutate();
+      // 成功時は楽観的更新したデータがそのまま正しいので、追加のフェッチは不要
     } catch (error) {
       // エラー時は元のデータに戻す
       mutate();
