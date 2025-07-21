@@ -6,7 +6,7 @@ export async function POST(request: NextRequest) {
   try {
     // JSONとして受け取る
     const jsonBody = await request.json();
-    const path = request.nextUrl.pathname.replace(/^\/api\/auth\//, "");
+    const path = request.nextUrl.pathname.replace(/^\/api\/proxy\/auth\//, "");
     const backendUrl = `${BACKEND_URL}/api/auth/${path}`;
 
     // バックエンドにリクエストを転送
