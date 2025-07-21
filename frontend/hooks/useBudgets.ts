@@ -14,7 +14,7 @@ export interface Budget {
 export function useBudgets(groupId?: string, userId?: string) {
   // groupIdとuserIdの両方が存在するか、両方ともundefinedの場合のみフェッチを実行
   const shouldFetch = (groupId && userId) || (!groupId && !userId);
-  const key = groupId && userId ? `/api/groups/${groupId}/budgets/list?userId=${userId}` : '/api/budgets';
+  const key = groupId && userId ? `/api/budgets/groups/${groupId}/list?userId=${userId}` : '/api/budgets';
 
   const { data, error, mutate } = useSWR(shouldFetch ? key : null, () => apiClient.getBudgets(groupId, userId));
 

@@ -8,7 +8,7 @@ const router = Router();
 router.use(authenticateToken);
 
 // 予算一覧取得（グループ対応）
-router.post('/groups/:groupId/budgets/list', async (req: Request, res: Response) => {
+router.post('/groups/:groupId/list', async (req: Request, res: Response) => {
   try {
     const { groupId } = req.params;
     const { userId } = req.body;
@@ -46,7 +46,7 @@ router.post('/groups/:groupId/budgets/list', async (req: Request, res: Response)
 });
 
 // 予算作成（グループ対応）
-router.post('/groups/:groupId/budgets', async (req: Request, res: Response) => {
+router.post('/groups/:groupId', async (req: Request, res: Response) => {
   try {
     const { groupId } = req.params;
     const { userId, amount, purpose, date } = req.body;
@@ -88,7 +88,7 @@ router.post('/groups/:groupId/budgets', async (req: Request, res: Response) => {
 });
 
 // 予算更新（グループ対応）
-router.put('/groups/:groupId/budgets/:id', async (req: Request, res: Response) => {
+router.put('/groups/:groupId/:id', async (req: Request, res: Response) => {
   try {
     const { groupId, id } = req.params;
     const { userId, amount, purpose, date } = req.body;
@@ -140,7 +140,7 @@ router.put('/groups/:groupId/budgets/:id', async (req: Request, res: Response) =
 });
 
 // 予算削除（グループ対応）
-router.delete('/groups/:groupId/budgets/:id', async (req: Request, res: Response) => {
+router.delete('/groups/:groupId/:id', async (req: Request, res: Response) => {
   try {
     const { groupId, id } = req.params;
     const { userId } = req.body;

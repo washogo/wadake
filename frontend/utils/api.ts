@@ -313,7 +313,7 @@ class ApiClient {
   // 予算一覧取得
   async getBudgets(groupId?: string, userId?: string) {
     if (groupId && userId) {
-      return this.request(`/groups/${groupId}/budgets/list`, {
+      return this.request(`/budgets/groups/${groupId}/list`, {
         method: 'POST',
         body: JSON.stringify({ userId }),
       });
@@ -324,7 +324,7 @@ class ApiClient {
   // 予算登録
   async createBudget(data: { amount: number; purpose: string; date: string; groupId?: string; userId?: string }) {
     if (data.groupId) {
-      return this.request(`/groups/${data.groupId}/budgets`, {
+      return this.request(`/budgets/groups/${data.groupId}`, {
         method: 'POST',
         body: JSON.stringify(data),
       });
@@ -347,7 +347,7 @@ class ApiClient {
     }
   ) {
     if (data.groupId) {
-      return this.request(`/groups/${data.groupId}/budgets/${id}`, {
+      return this.request(`/budgets/groups/${data.groupId}/${id}`, {
         method: 'PUT',
         body: JSON.stringify(data),
       });
@@ -361,7 +361,7 @@ class ApiClient {
   // 予算削除
   async deleteBudget(id: string, groupId?: string, userId?: string) {
     if (groupId && userId) {
-      return this.request(`/groups/${groupId}/budgets/${id}`, {
+      return this.request(`/budgets/groups/${groupId}/${id}`, {
         method: 'DELETE',
         body: JSON.stringify({ userId }),
       });
@@ -369,6 +369,60 @@ class ApiClient {
     return this.request(`/budgets/${id}`, {
       method: 'DELETE',
     });
+  }
+
+  // 集計データ取得
+  async getDailySummary(date?: string, groupId?: string, userId?: string) {
+    const params = new URLSearchParams();
+    if (date) params.append('date', date);
+    if (groupId) params.append('groupId', groupId);
+
+    if (groupId && userId) {
+      return this.request(`/groups/${groupId}/summary/daily?${params}`, {
+        method: 'POST',
+        body: JSON.stringify({ userId }),
+      });
+    }
+    return this.request(`/summary/daily?${params}`);
+  }
+
+  async getMonthlySummary(year?: number, month?: number, groupId?: string, userId?: string) {
+    const params = new URLSearchParams();
+    if (year) params.append('year', year.toString());
+    if (month) params.append('month', month.toString());
+    if (groupId) params.append('groupId', groupId);
+
+    if (groupId && userId) {
+      return this.request(`/groups/${groupId}/summary/monthly?${params}`, {
+        method: 'POST',
+        body: JSON.stringify({ userId }),
+      });
+    }
+    return this.request(`/summary/monthly?${params}`);
+  }
+
+  async getYearlySummary(year?: number, groupId?: string, userId?: string) {
+    const params = new URLSearchParams();
+    if (year) params.append('year', year.toString());
+    if (groupId) params.append('groupId', groupId);
+
+    if (groupId && userId) {
+      return this.request(`/groups/${groupId}/summary/yearly?${params}`, {
+        method: 'POST',
+        body: JSON.stringify({ userId }),
+      });
+    }
+    return this.request(`/summary/yearly?${params}`);
+  }
+
+  async getTrendSummary(groupId?: string, userId?: string) {
+    if (groupId && userId) {
+      return this.request(`/groups/${groupId}/summary/trend`, {
+        method: 'POST',
+        body: JSON.stringify({ userId }),
+      });
+    }
+    return this.request('/summary/trend');
   }
 }
 

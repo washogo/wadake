@@ -7,6 +7,7 @@ import expenseRoutes from './routes/expenses';
 import categoryRoutes from './routes/categories';
 import groupRoutes from './routes/groups';
 import budgetRoutes from './routes/budgets';
+import summaryRoutes from './routes/summary';
 import { prisma } from './lib/prisma';
 
 const app = express();
@@ -36,6 +37,7 @@ app.use('/api/expenses', expenseRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/budgets', budgetRoutes);
+app.use('/api/summary', summaryRoutes);
 
 // ヘルスチェック
 app.get('/health', async (req, res) => {
