@@ -56,7 +56,7 @@ export default function Header() {
                 <select
                   value={currentGroupId || ''}
                   onChange={(e) => setCurrentGroupId(e.target.value)}
-                  className="ml-4 px-3 py-1 rounded border border-gray-300 text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-green-200"
+                  className="ml-4 px-3 py-1 rounded border border-gray-300 text-black bg-white focus:outline-none focus:ring-2 focus:ring-green-200"
                   style={{ minWidth: 120 }}
                 >
                   {groups.map((g) => (

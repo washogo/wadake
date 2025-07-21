@@ -45,7 +45,7 @@ export function GroupCreateModal({ isOpen, onClose, onSubmit, loading }: GroupCr
               id="groupName"
               value={groupName}
               onChange={(e) => setGroupName(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-200 focus:border-green-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-200 focus:border-green-500 text-black"
               placeholder="家族、チーム名など"
               required
             />
@@ -106,7 +106,7 @@ export function GroupInviteModal({ isOpen, onClose, onSubmit, loading }: GroupIn
               id="userId"
               value={userId}
               onChange={(e) => setUserId(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-500 text-black"
               placeholder="招待するユーザーのID"
               required
             />
@@ -119,7 +119,7 @@ export function GroupInviteModal({ isOpen, onClose, onSubmit, loading }: GroupIn
               id="role"
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-500 text-black"
             >
               <option value="member">メンバー</option>
               <option value="admin">管理者</option>

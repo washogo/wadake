@@ -1,41 +1,35 @@
-'use client'
+'use client';
 
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useEffect } from 'react'
-import { incomeSchema, type IncomeFormData } from '../lib/validations'
-import { Income } from '../hooks/useIncomes'
-import { format } from 'date-fns'
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect } from 'react';
+import { incomeSchema, type IncomeFormData } from '../lib/validations';
+import { Income } from '../hooks/useIncomes';
+import { format } from 'date-fns';
 
 interface IncomeModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onSubmit: (data: IncomeFormData) => Promise<void>
-  income?: Income | null
-  categories: Array<{ id: string; name: string }>
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (data: IncomeFormData) => Promise<void>;
+  income?: Income | null;
+  categories: Array<{ id: string; name: string }>;
 }
 
-export default function IncomeModal({
-  isOpen,
-  onClose,
-  onSubmit,
-  income,
-  categories
-}: IncomeModalProps) {
+export default function IncomeModal({ isOpen, onClose, onSubmit, income, categories }: IncomeModalProps) {
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-    reset
+    reset,
   } = useForm<IncomeFormData>({
     resolver: zodResolver(incomeSchema),
     defaultValues: {
       categoryId: '',
       amount: 0,
       memo: '',
-      date: format(new Date(), 'yyyy-MM-dd')
-    }
-  })
+      date: format(new Date(), 'yyyy-MM-dd'),
+    },
+  });
 
   // incomeプロパティが変更されたときにフォームの値を更新
   useEffect(() => {
@@ -45,34 +39,34 @@ export default function IncomeModal({
         categoryId: income.category.id,
         amount: income.amount,
         memo: income.memo || '',
-        date: format(new Date(income.date), 'yyyy-MM-dd')
-      })
+        date: format(new Date(income.date), 'yyyy-MM-dd'),
+      });
     } else {
       // 新規追加モード：デフォルト値にリセット
       reset({
         categoryId: '',
         amount: 0,
         memo: '',
-        date: format(new Date(), 'yyyy-MM-dd')
-      })
+        date: format(new Date(), 'yyyy-MM-dd'),
+      });
     }
-  }, [income, reset])
+  }, [income, reset]);
 
   const handleFormSubmit = async (data: IncomeFormData) => {
     try {
-      await onSubmit(data)
+      await onSubmit(data);
       // フォーム送信後にフォームをリセット
       reset({
         categoryId: '',
         amount: 0,
         memo: '',
-        date: format(new Date(), 'yyyy-MM-dd')
-      })
-      onClose()
+        date: format(new Date(), 'yyyy-MM-dd'),
+      });
+      onClose();
     } catch (error) {
-      console.error('Error submitting form:', error)
+      console.error('Error submitting form:', error);
     }
-  }
+  };
 
   const handleClose = () => {
     // モーダルを閉じる際にフォームをリセット
@@ -80,12 +74,12 @@ export default function IncomeModal({
       categoryId: '',
       amount: 0,
       memo: '',
-      date: format(new Date(), 'yyyy-MM-dd')
-    })
-    onClose()
-  }
+      date: format(new Date(), 'yyyy-MM-dd'),
+    });
+    onClose();
+  };
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -93,13 +87,8 @@ export default function IncomeModal({
         {/* ヘッダー */}
         <div className="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-white">
-              {income ? '収入を編集' : '収入を追加'}
-            </h2>
-            <button
-              onClick={handleClose}
-              className="text-white hover:text-gray-200 transition-colors"
-            >
+            <h2 className="text-xl font-bold text-white">{income ? '収入を編集' : '収入を追加'}</h2>
+            <button onClick={handleClose} className="text-white hover:text-gray-200 transition-colors">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -111,34 +100,26 @@ export default function IncomeModal({
         <form onSubmit={handleSubmit(handleFormSubmit)} className="p-6 space-y-6">
           {/* 金額入力 */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              金額
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">金額</label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-lg">
-                ¥
-              </span>
+              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-lg">¥</span>
               <input
                 type="number"
                 {...register('amount', { valueAsNumber: true })}
-                className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-lg font-medium"
+                className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-lg font-medium text-black"
                 placeholder="0"
                 min="1"
               />
             </div>
-            {errors.amount && (
-              <p className="mt-1 text-sm text-red-600">{errors.amount.message}</p>
-            )}
+            {errors.amount && <p className="mt-1 text-sm text-red-600">{errors.amount.message}</p>}
           </div>
 
           {/* カテゴリ選択 */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              カテゴリ
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">カテゴリ</label>
             <select
               {...register('categoryId')}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-black"
             >
               <option value="">カテゴリを選択</option>
               {categories.map((category) => (
@@ -147,40 +128,30 @@ export default function IncomeModal({
                 </option>
               ))}
             </select>
-            {errors.categoryId && (
-              <p className="mt-1 text-sm text-red-600">{errors.categoryId.message}</p>
-            )}
+            {errors.categoryId && <p className="mt-1 text-sm text-red-600">{errors.categoryId.message}</p>}
           </div>
 
           {/* 日付選択 */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              日付
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">日付</label>
             <input
               type="date"
               {...register('date')}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-black"
             />
-            {errors.date && (
-              <p className="mt-1 text-sm text-red-600">{errors.date.message}</p>
-            )}
+            {errors.date && <p className="mt-1 text-sm text-red-600">{errors.date.message}</p>}
           </div>
 
           {/* メモ */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              メモ
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">メモ</label>
             <textarea
               {...register('memo')}
               rows={3}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none text-black"
               placeholder="収入の詳細を入力（任意）"
             />
-            {errors.memo && (
-              <p className="mt-1 text-sm text-red-600">{errors.memo.message}</p>
-            )}
+            {errors.memo && <p className="mt-1 text-sm text-red-600">{errors.memo.message}</p>}
           </div>
 
           {/* ボタン */}
@@ -203,5 +174,5 @@ export default function IncomeModal({
         </form>
       </div>
     </div>
-  )
+  );
 }
