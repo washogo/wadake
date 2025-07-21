@@ -11,6 +11,10 @@ export interface Income {
     name: string;
     type: string;
   };
+  user?: {
+    id: string;
+    name: string;
+  };
   createdAt: string;
   updatedAt: string;
 }
@@ -30,11 +34,32 @@ export function useIncomes(groupId?: string, userId?: string) {
 
   const incomes = Array.isArray(data?.data) ? data.data : [];
 
+  // 楽観的更新関数
+  const optimisticUpdate = async (
+    newData: Income[],
+    apiCall: () => Promise<unknown>
+  ) => {
+    // 即座にUIを更新
+    mutate({ data: newData }, false);
+
+    try {
+      // バックグラウンドでAPIを実行
+      await apiCall();
+      // 成功後にサーバーからデータを再取得
+      mutate();
+    } catch (error) {
+      // エラー時は元のデータに戻す
+      mutate();
+      throw error;
+    }
+  };
+
   return {
     incomes,
     isLoading: !error && !data,
     isError: error,
     mutate,
+    optimisticUpdate,
   };
 }
 

@@ -15,7 +15,7 @@ export default function ExpensesPage() {
   const { user, isLoading } = useAuth();
   const { currentGroupId } = useGroup();
   const router = useRouter();
-  const { expenses, isLoading: expensesLoading, mutate } = useExpenses(currentGroupId || undefined, user?.id);
+  const { expenses, isLoading: expensesLoading, mutate, optimisticUpdate } = useExpenses(currentGroupId || undefined, user?.id);
   const { categories, isLoading: categoriesLoading } = useExpenseCategories();
 
   const [showModal, setShowModal] = useState(false);
@@ -33,28 +33,64 @@ export default function ExpensesPage() {
   const handleSubmit = async (data: ExpenseFormData) => {
     try {
       if (editingExpense) {
-        await apiClient.updateExpense(editingExpense.id, {
-          categoryId: data.categoryId,
-          amount: data.amount,
-          description: data.description || undefined,
-          date: data.date,
-          groupId: currentGroupId || undefined,
-          userId: user?.id,
-        });
+        // 楽観的更新で即座にUIを更新
+        await optimisticUpdate(
+          expenses?.map(expense => 
+            expense.id === editingExpense.id 
+              ? { ...expense, ...data, description: data.description || null, category: categories?.find(c => c.id === data.categoryId) || expense.category }
+              : expense
+          ) || [],
+          async () => {
+            const response = await apiClient.updateExpense(editingExpense.id, {
+              categoryId: data.categoryId,
+              amount: data.amount,
+              description: data.description || undefined,
+              date: data.date,
+              groupId: currentGroupId || undefined,
+              userId: user?.id,
+            });
+            if (response.error) {
+              throw new Error(response.error);
+            }
+            return response.data;
+          }
+        );
       } else {
-        await apiClient.createExpense({
-          categoryId: data.categoryId,
-          amount: data.amount,
-          description: data.description || undefined,
-          date: data.date,
-          groupId: currentGroupId || undefined,
-          userId: user?.id,
-        });
+        // 楽観的更新で即座にUIを更新
+        const newExpense: Expense = {
+          id: Date.now().toString(), // 一時的なID
+          ...data,
+          description: data.description || null,
+          category: categories?.find(c => c.id === data.categoryId) || { id: data.categoryId, name: 'Unknown', type: 'expense' },
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+        
+        await optimisticUpdate(
+          [newExpense, ...(expenses || [])],
+          async () => {
+            const response = await apiClient.createExpense({
+              categoryId: data.categoryId,
+              amount: data.amount,
+              description: data.description || undefined,
+              date: data.date,
+              groupId: currentGroupId || undefined,
+              userId: user?.id,
+            });
+            if (response.error) {
+              throw new Error(response.error);
+            }
+            return response.data;
+          }
+        );
       }
 
-      mutate(); // SWRでデータを再取得
+      setShowModal(false);
+      setEditingExpense(null);
     } catch (error) {
-      console.error('Error saving expense:', error);
+      console.error('支出の保存に失敗しました:', error);
+      // エラー時にはデータを再取得
+      mutate();
       throw error;
     }
   };
@@ -74,12 +110,23 @@ export default function ExpensesPage() {
 
     try {
       setIsDeleting(true);
-      await apiClient.deleteExpense(deletingExpense.id, currentGroupId || undefined);
-      mutate(); // SWRでデータを再取得
+      // 楽観的更新で即座にUIを更新（削除対象を除外）
+      await optimisticUpdate(
+        expenses?.filter(expense => expense.id !== deletingExpense.id) || [],
+        async () => {
+          const response = await apiClient.deleteExpense(deletingExpense.id, currentGroupId || undefined);
+          if (response.error) {
+            throw new Error(response.error);
+          }
+          return response.data;
+        }
+      );
       setShowDeleteDialog(false);
       setDeletingExpense(null);
     } catch (error) {
-      console.error('Error deleting expense:', error);
+      console.error('支出の削除に失敗しました:', error);
+      // エラー時にはデータを再取得
+      mutate();
     } finally {
       setIsDeleting(false);
     }

@@ -6,7 +6,15 @@ import { useGroup } from '../providers/GroupProvider';
 import { apiClient } from '../../utils/api';
 import { useRouter } from 'next/navigation';
 import { useIncomes, useIncomeCategories, type Income } from '../../hooks/useIncomes';
-import { type IncomeFormData } from '../../lib/validations';
+
+interface IncomeCreate {
+  categoryId: string;
+  amount: number;
+  memo?: string;
+  date: string;
+  groupId?: string;
+  userId?: string;
+}
 import IncomeModal from '../../components/IncomeModal';
 import DeleteConfirmDialog from '../../components/DeleteConfirmDialog';
 import { formatDate, isCurrentMonthByInterval } from '../../utils/dateUtils';
@@ -15,7 +23,7 @@ export default function IncomesPage() {
   const { user, isLoading } = useAuth();
   const { currentGroupId } = useGroup();
   const router = useRouter();
-  const { incomes, isLoading: incomesLoading, mutate } = useIncomes(currentGroupId || undefined, user?.id);
+  const { incomes, isLoading: incomesLoading, mutate, optimisticUpdate } = useIncomes(currentGroupId || undefined, user?.id);
   const { categories, isLoading: categoriesLoading } = useIncomeCategories();
 
   const [showModal, setShowModal] = useState(false);
@@ -30,32 +38,62 @@ export default function IncomesPage() {
     return null;
   }
 
-  const handleSubmit = async (data: IncomeFormData) => {
+  const handleSubmit = async (incomeData: IncomeCreate) => {
     try {
       if (editingIncome) {
-        await apiClient.updateIncome(editingIncome.id, {
-          categoryId: data.categoryId,
-          amount: data.amount,
-          memo: data.memo || undefined,
-          date: data.date,
-          groupId: currentGroupId || undefined,
-          userId: user?.id,
-        });
+        // 楽観的更新で即座にUIを更新
+        await optimisticUpdate(
+          incomes?.map(income => 
+            income.id === editingIncome.id 
+              ? { ...income, ...incomeData, memo: incomeData.memo || null, category: categories?.find(c => c.id === incomeData.categoryId) || income.category }
+              : income
+          ) || [],
+          async () => {
+            const updatedData = {
+              ...incomeData,
+              groupId: currentGroupId || undefined,
+              userId: user?.id
+            };
+            const response = await apiClient.updateIncome(editingIncome.id, updatedData);
+            if (response.error) {
+              throw new Error(response.error);
+            }
+            return response.data;
+          }
+        );
       } else {
-        await apiClient.createIncome({
-          categoryId: data.categoryId,
-          amount: data.amount,
-          memo: data.memo || undefined,
-          date: data.date,
-          groupId: currentGroupId || undefined,
-          userId: user?.id,
-        });
+        // 楽観的更新で即座にUIを更新
+        const newIncome: Income = {
+          id: Date.now().toString(), // 一時的なID
+          ...incomeData,
+          memo: incomeData.memo || null,
+          category: categories?.find(c => c.id === incomeData.categoryId) || { id: incomeData.categoryId, name: 'Unknown', type: 'income' },
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+        
+        await optimisticUpdate(
+          [newIncome, ...(incomes || [])],
+          async () => {
+            const createData = {
+              ...incomeData,
+              groupId: currentGroupId || undefined,
+              userId: user?.id
+            };
+            const response = await apiClient.createIncome(createData);
+            if (response.error) {
+              throw new Error(response.error);
+            }
+            return response.data;
+          }
+        );
       }
-
-      mutate(); // SWRでデータを再取得
+      setShowModal(false);
+      setEditingIncome(null);
     } catch (error) {
-      console.error('Error saving income:', error);
-      throw error;
+      console.error('収入の保存に失敗しました:', error);
+      // エラー時にはデータを再取得
+      mutate();
     }
   };
 
@@ -74,12 +112,23 @@ export default function IncomesPage() {
 
     try {
       setIsDeleting(true);
-      await apiClient.deleteIncome(deletingIncome.id, currentGroupId || undefined);
-      mutate(); // SWRでデータを再取得
+      // 楽観的更新で即座にUIを更新（削除対象を除外）
+      await optimisticUpdate(
+        incomes?.filter(income => income.id !== deletingIncome.id) || [],
+        async () => {
+          const response = await apiClient.deleteIncome(deletingIncome.id, currentGroupId || undefined);
+          if (response.error) {
+            throw new Error(response.error);
+          }
+          return response.data;
+        }
+      );
       setShowDeleteDialog(false);
       setDeletingIncome(null);
     } catch (error) {
-      console.error('Error deleting income:', error);
+      console.error('収入の削除に失敗しました:', error);
+      // エラー時にはデータを再取得
+      mutate();
     } finally {
       setIsDeleting(false);
     }
